@@ -1,0 +1,27 @@
+# Opzioni di "configure" della build di FFmpeg usata da Eclipsis: Windows 64 bit, statica,
+# LGPL 2.1 (niente --enable-gpl, --enable-version3, --enable-nonfree).
+# Una opzione per riga; le righe che cominciano con # sono commenti.
+--disable-debug
+--disable-doc
+--disable-autodetect
+--disable-network
+--disable-devices
+--enable-indev=lavfi
+--disable-hwaccels
+--enable-w32threads
+--enable-mediafoundation
+--enable-zlib
+--enable-sdl2
+--enable-libass
+--enable-libzimg
+--enable-libdav1d
+# Codificatori: solo quelli che il programma usa. H.264 e AAC sono quelli di Windows
+# (Media Foundation), che non sono dentro gli eseguibili.
+--disable-encoders
+--enable-encoder=h264_mf,aac_mf,pcm_s16le,png,mjpeg,rawvideo,wrapped_avframe
+# Decodificatori: l'AAC lo decodifica Windows (aac_mf, vedi sorgenti/mfdec.c); il
+# decodificatore AAC di FFmpeg non c'e'. Niente VVC.
+--disable-decoder=aac,aac_fixed,aac_latm,vvc
+--enable-decoder=aac_mf
+# File con licenza GPL che configure non lega a --enable-gpl.
+--disable-filter=perlin,codecview

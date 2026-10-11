@@ -1,0 +1,93 @@
+name: Compila FFmpeg per Eclipsis
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  compila:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compila (Docker, immagine di BtbN)
+        run: bash compila.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-eclipsis-win64
+          path: uscita/
+          if-no-files-found: error
+
+  prova:
+    needs: compila
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ffmpeg-eclipsis-win64
+          path: eclipsis
+      - name: Media Foundation (su Windows Server e' una funzionalita' da aggiungere)
+        shell: pwsh
+        run: |
+          $f = Get-WindowsFeature Server-Media-Foundation -ErrorAction SilentlyContinue
+          if ($f -and -not $f.Installed) { Install-WindowsFeature Server-Media-Foundation | Format-List }
+          Get-ChildItem C:\Windows\System32\msauddecmft.dll, C:\Windows\System32\mfplat.dll
+      - name: FFmpeg ufficiale di BtbN (riferimento col decoder AAC di FFmpeg)
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.1-latest-win64-lgpl-8.1.zip -OutFile ufficiale.zip
+          Expand-Archive ufficiale.zip -DestinationPath ufficiale
+          $exe = Get-ChildItem ufficiale -Recurse -Filter ffmpeg.exe | Select-Object -First 1
+          "UFFICIALE=$($exe.FullName)" | Out-File -Append $env:GITHUB_ENV
+      - name: Elenco dei componenti
+        shell: pwsh
+        run: |
+          .\eclipsis\ffmpeg.exe -hide_banner -version
+          .\eclipsis\ffmpeg.exe -hide_banner -decoders | Select-String " aac"
+          .\eclipsis\ffmpeg.exe -hide_banner -encoders
+          if (.\eclipsis\ffmpeg.exe -hide_banner -decoders | Select-String "^ A....D aac  ") { throw "c'e' ancora il decoder AAC di FFmpeg" }
+      - name: File di prova
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory prova | Out-Null
+          & $env:UFFICIALE -v error -f lavfi -i "sine=frequency=440:sample_rate=48000:d=6" -f lavfi -i "sine=frequency=660:sample_rate=48000:d=6" -filter_complex "[0][1]amerge=inputs=2" -c:a aac -b:a 160k prova\stereo_48k.m4a
+          & $env:UFFICIALE -v error -f lavfi -i "sine=frequency=330:sample_rate=44100:d=5" -ac 1 -c:a aac -b:a 96k prova\mono_44k.m4a
+          & $env:UFFICIALE -v error -f lavfi -i "sine=frequency=550:sample_rate=44100:d=5" -ac 2 -c:a aac -b:a 128k prova\stereo_44k.aac
+          & $env:UFFICIALE -v error -f lavfi -i "anoisesrc=d=4:c=pink:r=48000:a=0.3" -af "aformat=channel_layouts=5.1" -c:a aac -b:a 384k prova\surround_51.m4a
+          & $env:UFFICIALE -v error -f lavfi -i "testsrc2=s=320x240:r=30:d=4" -f lavfi -i "sine=frequency=500:sample_rate=48000:d=4" -c:v mpeg4 -c:a aac -b:a 128k -shortest prova\video.mp4
+          Get-ChildItem prova
+      - name: Confronto delle decodifiche
+        shell: pwsh
+        run: |
+          python prove\confronta_aac.py $env:UFFICIALE .\eclipsis\ffmpeg.exe (Get-ChildItem prova -File | ForEach-Object FullName)
+      - name: Codifica con gli encoder di Windows (come fa il programma)
+        shell: pwsh
+        run: |
+          .\eclipsis\ffmpeg.exe -v error -f lavfi -i "testsrc2=s=640x360:r=30:d=3" -f lavfi -i "sine=frequency=440:sample_rate=48000:d=3" -c:v h264_mf -hw_encoding 0 -pix_fmt yuv420p -c:a aac_mf -b:a 192k -shortest prova\uscita_mf.mp4
+          .\eclipsis\ffprobe.exe -v error -show_entries stream=codec_name,sample_rate,channels -of compact prova\uscita_mf.mp4
+          .\eclipsis\ffmpeg.exe -v error -i prova\uscita_mf.mp4 -f null -
+
+  pubblica:
+    needs: [compila, prova]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ffmpeg-eclipsis-win64
+          path: uscita
+      - name: Release con gli eseguibili e il sorgente corrispondente
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd uscita
+          zip -9 ffmpeg-eclipsis-win64.zip ffmpeg.exe ffprobe.exe ffplay.exe LICENSE.txt SHA256SUMS.txt configurazione.txt commit_ffmpeg.txt immagine_docker.txt
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --title "FFmpeg per Eclipsis $GITHUB_REF_NAME" \
+            --notes "Eseguibili di FFmpeg compilati da questo repository (LGPL 2.1) e il loro sorgente corrispondente." \
+            ffmpeg-eclipsis-win64.zip ffmpeg-sorgente.tar.gz
