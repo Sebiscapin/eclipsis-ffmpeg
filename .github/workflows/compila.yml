@@ -3,7 +3,10 @@ name: Compila FFmpeg per Eclipsis
 on:
   workflow_dispatch:
   push:
+    # ogni modifica a main si compila e si prova; la release si crea solo con un tag v...
+    branches: [main]
     tags: ['v*']
+    paths-ignore: ['**.md']
 
 permissions:
   contents: write

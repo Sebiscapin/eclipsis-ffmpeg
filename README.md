@@ -40,7 +40,8 @@ Poi, su Windows, confronta l'audio decodificato da questa build con quello del F
 ufficiale di BtbN ([prove/confronta_aac.py](prove/confronta_aac.py)) e prova gli encoder di
 Windows.
 
-Una release si crea con un tag `v...` (per esempio `v8.1-1`).
+Ogni modifica caricata su `main` si compila e si prova; una release si crea solo con un
+tag `v...` (per esempio `v8.1-1`).
 
 ## Sorgente corrispondente
 
