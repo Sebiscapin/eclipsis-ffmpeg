@@ -84,11 +84,25 @@ jobs:
         run: |
           python prove\confronta_aac.py $env:UFFICIALE .\eclipsis\ffmpeg.exe (Get-ChildItem prova -File | ForEach-Object FullName)
       - name: Codifica con gli encoder di Windows (come fa il programma)
+        # anche se il confronto e' fallito: due esiti in un giro solo
+        if: ${{ !cancelled() }}
         shell: pwsh
         run: |
-          .\eclipsis\ffmpeg.exe -v error -f lavfi -i "testsrc2=s=640x360:r=30:d=3" -f lavfi -i "sine=frequency=440:sample_rate=48000:d=3" -c:v h264_mf -hw_encoding 0 -pix_fmt yuv420p -c:a aac_mf -b:a 192k -shortest prova\uscita_mf.mp4
-          .\eclipsis\ffprobe.exe -v error -show_entries stream=codec_name,sample_rate,channels -of compact prova\uscita_mf.mp4
-          .\eclipsis\ffmpeg.exe -v error -i prova\uscita_mf.mp4 -f null -
+          # un comando che fallisce lascia le sue ultime righe come annotazioni (leggibili
+          # anche senza accesso al repository)
+          function Esegui([string]$nome, [string[]]$comando) {
+            $uscita = & $comando[0] $comando[1..($comando.Count - 1)] 2>&1 | Out-String
+            Write-Output $uscita
+            if ($LASTEXITCODE -ne 0) {
+              ($uscita -split "`r?`n" | Where-Object { $_.Trim() } | Select-Object -Last 15) |
+                ForEach-Object { "::error title=$nome::$($_.Trim())" }
+              exit 1
+            }
+          }
+          Esegui "codifica" @('.\eclipsis\ffmpeg.exe', '-v', 'error', '-f', 'lavfi', '-i', 'testsrc2=s=640x360:r=30:d=3', '-f', 'lavfi', '-i', 'sine=frequency=440:sample_rate=48000:d=3', '-c:v', 'h264_mf', '-hw_encoding', '0', '-pix_fmt', 'yuv420p', '-c:a', 'aac_mf', '-b:a', '192k', '-shortest', 'prova\uscita_mf.mp4')
+          Esegui "lettura" @('.\eclipsis\ffprobe.exe', '-v', 'error', '-show_entries', 'stream=codec_name,sample_rate,channels', '-of', 'compact', 'prova\uscita_mf.mp4')
+          Esegui "rilettura" @('.\eclipsis\ffmpeg.exe', '-v', 'error', '-i', 'prova\uscita_mf.mp4', '-f', 'null', '-')
+          "::notice title=codifica::h264_mf e aac_mf: file scritto e riletto senza errori"
 
   pubblica:
     needs: [compila, prova]
