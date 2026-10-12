@@ -5,8 +5,11 @@ Questo repository compila i tre eseguibili di [FFmpeg](https://ffmpeg.org) (`ffm
 Contiene solo la ricetta di compilazione di FFmpeg: il codice di Eclipsis non è qui e non
 è pubblico.
 
-FFmpeg è distribuito con la licenza **GNU LGPL 2.1 o successiva** (testo in `LICENSE.txt`
-di ogni release). Questa build non usa parti GPL né "nonfree".
+FFmpeg è distribuito con la licenza **GNU LGPL**. Questa build è configurata con
+`--enable-version3`, quindi gli eseguibili sono distribuiti con la **LGPL versione 3 o
+successiva** ([COPYING.LGPLv3](COPYING.LGPLv3), che rimanda alla
+[GPL versione 3](COPYING.GPLv3)). Non usa parti GPL né "nonfree". Gli script e il file
+[sorgenti/mfdec.c](sorgenti/mfdec.c) di questo repository hanno la stessa licenza.
 
 ## Differenze rispetto a FFmpeg
 
@@ -20,6 +23,9 @@ di ogni release). Questa build non usa parti GPL né "nonfree".
 - **Codificatori**: solo quelli che il programma usa. H.264 e AAC sono quelli di Windows
   (`h264_mf`, `aac_mf`), quindi nessun codificatore H.264 o AAC è compilato negli eseguibili.
 - **Opzioni di compilazione**: tutte in [configurazione.txt](configurazione.txt).
+- **Avviso delle modifiche**: il sorgente di ogni release contiene `MODIFICHE_ECLIPSIS.txt`
+  (cosa è cambiato e quando, 12 ottobre 2026) e ogni riga aggiunta ai file di FFmpeg è
+  preceduta da un commento "Eclipsis".
 
 ## Come si compila
 
@@ -48,8 +54,11 @@ versioni (cartella `scripts.d` di quel repository).
 # FFmpeg for Eclipsis (English)
 
 This repository builds the FFmpeg executables used by the Eclipsis application. It only
-contains the FFmpeg build recipe; Eclipsis' own code is not here. FFmpeg is licensed under
-the GNU LGPL 2.1 or later; this build contains no GPL or nonfree parts. AAC is decoded by
+contains the FFmpeg build recipe; Eclipsis' own code is not here. The build is configured
+with `--enable-version3`, so the executables are distributed under the GNU LGPL version 3
+or later (COPYING.LGPLv3, together with COPYING.GPLv3); it contains no GPL-only or nonfree
+parts. Every modified FFmpeg file carries an "Eclipsis" notice and each release includes
+MODIFICHE_ECLIPSIS.txt describing the changes (12 October 2026). AAC is decoded by
 the AAC decoder that ships with Windows (Media Foundation) through the `aac_mf` decoder in
 `sorgenti/mfdec.c`; FFmpeg's own AAC decoder and all unused encoders are disabled. Every
 release includes the complete corresponding source (`ffmpeg-sorgente.tar.gz`).

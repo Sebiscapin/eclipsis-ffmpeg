@@ -1,6 +1,10 @@
 /*
  * AAC decoder using the Microsoft AAC decoder MFT (Media Foundation)
  *
+ * Written for the FFmpeg build used by Eclipsis
+ * (https://github.com/Sebiscapin/eclipsis-ffmpeg), 12 October 2026; not part of
+ * the upstream FFmpeg sources.
+ *
  * This file is part of FFmpeg.
  *
  * FFmpeg is free software; you can redistribute it and/or

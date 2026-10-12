@@ -89,5 +89,5 @@ jobs:
           cd uscita
           zip -9 ffmpeg-eclipsis-win64.zip ffmpeg.exe ffprobe.exe ffplay.exe LICENSE.txt SHA256SUMS.txt configurazione.txt commit_ffmpeg.txt immagine_docker.txt
           gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --title "FFmpeg per Eclipsis $GITHUB_REF_NAME" \
-            --notes "Eseguibili di FFmpeg compilati da questo repository (LGPL 2.1) e il loro sorgente corrispondente." \
+            --notes "Eseguibili di FFmpeg compilati da questo repository (LGPL 3) e il loro sorgente corrispondente." \
             ffmpeg-eclipsis-win64.zip ffmpeg-sorgente.tar.gz

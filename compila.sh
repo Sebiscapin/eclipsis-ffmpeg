@@ -1,5 +1,5 @@
 #!/bin/bash
-# Compila ffmpeg.exe, ffprobe.exe e ffplay.exe per Eclipsis (Windows 64 bit, statici, LGPL):
+# Compila ffmpeg.exe, ffprobe.exe e ffplay.exe per Eclipsis (Windows 64 bit, statici, LGPL 3):
 # FFmpeg 8.1 con le opzioni di configurazione.txt e il decoder AAC di Windows
 # (sorgenti/), dentro l'immagine Docker di BtbN/FFmpeg-Builds che contiene il compilatore
 # e le librerie gia' compilate (libass, zimg, dav1d, SDL2, zlib).
@@ -27,8 +27,8 @@ cd ffmpeg
 git rev-parse HEAD > /lavoro/commit_ffmpeg.txt
 bash /lavoro/sorgenti/aggiungi_decoder_aac_mf.sh .
 
-# Il sorgente corrispondente (LGPL 2.1 sez. 4): FFmpeg com'e' stato compilato, con il
-# decoder aggiunto, prima di compilare.
+# Il sorgente corrispondente (LGPL 3 / GPL 3 sez. 6): FFmpeg com'e' stato compilato, con
+# il decoder aggiunto, prima di compilare.
 git add -A
 git -c user.name="Eclipsis" -c user.email="build@eclipsis.app" commit -q \
     -m "avcodec: decoder AAC tramite Media Foundation (aac_mf)"
@@ -57,7 +57,11 @@ docker run --rm -e RAMO -u "$(id -u):$(id -g)" -v "$PWD/lavoro":/lavoro "$IMMAGI
 cp lavoro/prefix/bin/ffmpeg.exe lavoro/prefix/bin/ffprobe.exe lavoro/prefix/bin/ffplay.exe uscita/
 cp lavoro/commit_ffmpeg.txt lavoro/ffmpeg-sorgente.tar.gz lavoro/codificatori.txt \
    lavoro/decodificatori.txt configurazione.txt uscita/
-tar -xzf lavoro/ffmpeg-sorgente.tar.gz -C lavoro ffmpeg-eclipsis/COPYING.LGPLv2.1
-cp lavoro/ffmpeg-eclipsis/COPYING.LGPLv2.1 uscita/LICENSE.txt
+tar -xzf lavoro/ffmpeg-sorgente.tar.gz -C lavoro ffmpeg-eclipsis/COPYING.LGPLv3 \
+    ffmpeg-eclipsis/COPYING.GPLv3 ffmpeg-eclipsis/MODIFICHE_ECLIPSIS.txt
+# LGPL 3: il testo della LGPL, quello della GPL a cui rimanda e l'avviso delle modifiche
+cp lavoro/ffmpeg-eclipsis/COPYING.LGPLv3 uscita/LICENSE.txt
+cp lavoro/ffmpeg-eclipsis/COPYING.GPLv3 uscita/COPYING.GPLv3.txt
+cp lavoro/ffmpeg-eclipsis/MODIFICHE_ECLIPSIS.txt uscita/
 (cd uscita && sha256sum ffmpeg.exe ffprobe.exe ffplay.exe ffmpeg-sorgente.tar.gz > SHA256SUMS.txt)
 ls -la uscita

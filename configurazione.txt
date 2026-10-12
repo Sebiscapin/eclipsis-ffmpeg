@@ -1,6 +1,9 @@
 # Opzioni di "configure" della build di FFmpeg usata da Eclipsis: Windows 64 bit, statica,
-# LGPL 2.1 (niente --enable-gpl, --enable-version3, --enable-nonfree).
+# LGPL versione 3 (--enable-version3; niente --enable-gpl, niente --enable-nonfree).
+# La versione 3 perche' e' compatibile con le licenze dei brevetti dei codec (sez. 11
+# della GPL 3): il sorgente corrispondente e' pubblico in ogni release.
 # Una opzione per riga; le righe che cominciano con # sono commenti.
+--enable-version3
 --disable-debug
 --disable-doc
 --disable-autodetect
