@@ -11,6 +11,10 @@
 --disable-devices
 --enable-indev=lavfi
 --disable-hwaccels
+# D3D11 serve a compilare l'encoder h264_mf: in FFmpeg 8.1 libavcodec/mfenc.c usa i tipi
+# D3D11 anche quando D3D11VA e' spento (solo l'include e' condizionato). Le decodifiche
+# hardware restano spente (--disable-hwaccels); d3d11.dll si carica solo se serve.
+--enable-d3d11va
 --enable-w32threads
 --enable-mediafoundation
 --enable-zlib
