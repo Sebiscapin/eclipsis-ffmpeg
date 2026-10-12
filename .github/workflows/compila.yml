@@ -18,7 +18,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Compila (Docker, immagine di BtbN)
-        run: bash compila.sh
+        run: |
+          set -o pipefail
+          bash compila.sh 2>&1 | tee compilazione.log
+      # se la compilazione fallisce, le righe d'errore diventano annotazioni: si leggono
+      # anche senza accesso al repository (il registro completo no)
+      - name: Errori della compilazione in evidenza
+        if: failure()
+        run: |
+          grep -n -E "error:|Error [0-9]|\*\*\*|ERRORE|No such file|not found|unbound variable" \
+            compilazione.log | tail -n 25 | while IFS= read -r riga; do
+            echo "::error title=compilazione::${riga:0:900}"
+          done
+          tail -n 15 compilazione.log | while IFS= read -r riga; do
+            echo "::warning title=ultime righe::${riga:0:900}"
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: ffmpeg-eclipsis-win64
