@@ -38,14 +38,16 @@ def decodifica(ffmpeg, percorso, decoder=None, livello="error"):
     comando = [ffmpeg, "-hide_banner", "-nostats", "-v", livello]
     if decoder:
         comando += ["-c:a", decoder]
-    comando += ["-i", percorso, "-map", "0:a:0", "-f", "f32le", "-acodec", "pcm_f32le", "-"]
+    # a 16 bit: la build di Eclipsis ha solo il codificatore pcm_s16le, l'unico che il
+    # programma usa; l'arrotondamento (1/32768, circa 3e-5) e' ben sotto le soglie
+    comando += ["-i", percorso, "-map", "0:a:0", "-f", "s16le", "-acodec", "pcm_s16le", "-"]
     uscita = subprocess.run(comando, capture_output=True)
     if uscita.returncode != 0:
         raise RuntimeError(f"{os.path.basename(ffmpeg)}: "
                            f"{uscita.stderr.decode(errors='replace')[-1500:]}")
-    campioni = array.array("f")
-    campioni.frombytes(uscita.stdout)
-    return campioni
+    grezzi = array.array("h")
+    grezzi.frombytes(uscita.stdout)
+    return array.array("f", (x / 32768.0 for x in grezzi))
 
 
 def dettagli_errore(ffmpeg, percorso, decoder):
