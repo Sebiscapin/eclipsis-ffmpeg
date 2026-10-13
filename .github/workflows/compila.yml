@@ -27,10 +27,11 @@ jobs:
         if: failure()
         run: |
           grep -n -E "error:|Error [0-9]|\*\*\*|ERRORE|No such file|not found|unbound variable" \
-            compilazione.log | tail -n 25 | while IFS= read -r riga; do
+            compilazione.log | tail -n 10 | while IFS= read -r riga; do
             echo "::error title=compilazione::${riga:0:900}"
           done
-          tail -n 15 compilazione.log | while IFS= read -r riga; do
+          # GitHub tiene al massimo 10 annotazioni d'errore e 10 d'avviso per passo
+          tail -n 10 compilazione.log | while IFS= read -r riga; do
             echo "::warning title=ultime righe::${riga:0:900}"
           done
       - uses: actions/upload-artifact@v4
@@ -53,8 +54,21 @@ jobs:
         shell: pwsh
         run: |
           $f = Get-WindowsFeature Server-Media-Foundation -ErrorAction SilentlyContinue
-          if ($f -and -not $f.Installed) { Install-WindowsFeature Server-Media-Foundation | Format-List }
+          if ($f -and -not $f.Installed) {
+            $r = Install-WindowsFeature Server-Media-Foundation
+            $r | Format-List
+            "::notice title=Media Foundation::installata adesso: Success=$($r.Success), RestartNeeded=$($r.RestartNeeded), ExitCode=$($r.ExitCode)"
+          } else {
+            "::notice title=Media Foundation::gia' presente (Installed=$($f.Installed))"
+          }
           Get-ChildItem C:\Windows\System32\msauddecmft.dll, C:\Windows\System32\mfplat.dll
+          # aac_mf crea il decoder di Windows dal suo CLSID: deve essere registrato
+          $clsid = 'Registry::HKEY_CLASSES_ROOT\CLSID\{32d186a7-218f-4c75-8876-dd77273a8999}\InprocServer32'
+          if (Test-Path $clsid) {
+            "::notice title=decoder AAC di Windows::registrato in $((Get-ItemProperty $clsid).'(default)')"
+          } else {
+            "::warning title=decoder AAC di Windows::CLSID non registrato (serve un riavvio?)"
+          }
       - name: FFmpeg ufficiale di BtbN (riferimento col decoder AAC di FFmpeg)
         shell: pwsh
         run: |
@@ -73,11 +87,14 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory prova | Out-Null
-          & $env:UFFICIALE -v error -f lavfi -i "sine=frequency=440:sample_rate=48000:d=6" -f lavfi -i "sine=frequency=660:sample_rate=48000:d=6" -filter_complex "[0][1]amerge=inputs=2" -c:a aac -b:a 160k prova\stereo_48k.m4a
-          & $env:UFFICIALE -v error -f lavfi -i "sine=frequency=330:sample_rate=44100:d=5" -ac 1 -c:a aac -b:a 96k prova\mono_44k.m4a
-          & $env:UFFICIALE -v error -f lavfi -i "sine=frequency=550:sample_rate=44100:d=5" -ac 2 -c:a aac -b:a 128k prova\stereo_44k.aac
-          & $env:UFFICIALE -v error -f lavfi -i "anoisesrc=d=4:c=pink:r=48000:a=0.3" -af "aformat=channel_layouts=5.1" -c:a aac -b:a 384k prova\surround_51.m4a
-          & $env:UFFICIALE -v error -f lavfi -i "testsrc2=s=320x240:r=30:d=4" -f lavfi -i "sine=frequency=500:sample_rate=48000:d=4" -c:v mpeg4 -c:a aac -b:a 128k -shortest prova\video.mp4
+          # -aac_pns 0: col rumore sostituito (PNS) ogni decoder genera il suo rumore e i due
+          # risultati non si potrebbero confrontare
+          # (stereo_44k.aac e' ADTS: senza intestazione MP4, come i .aac e gli MPEG-TS)
+          & $env:UFFICIALE -v error -f lavfi -i "sine=frequency=440:sample_rate=48000:d=6" -f lavfi -i "sine=frequency=660:sample_rate=48000:d=6" -filter_complex "[0][1]amerge=inputs=2" -c:a aac -aac_pns 0 -b:a 160k prova\stereo_48k.m4a
+          & $env:UFFICIALE -v error -f lavfi -i "sine=frequency=330:sample_rate=44100:d=5" -ac 1 -c:a aac -aac_pns 0 -b:a 96k prova\mono_44k.m4a
+          & $env:UFFICIALE -v error -f lavfi -i "sine=frequency=550:sample_rate=44100:d=5" -ac 2 -c:a aac -aac_pns 0 -b:a 128k prova\stereo_44k.aac
+          & $env:UFFICIALE -v error -f lavfi -i "anoisesrc=d=4:c=pink:r=48000:a=0.3" -af "aformat=channel_layouts=5.1" -c:a aac -aac_pns 0 -b:a 384k prova\surround_51.m4a
+          & $env:UFFICIALE -v error -f lavfi -i "testsrc2=s=320x240:r=30:d=4" -f lavfi -i "sine=frequency=500:sample_rate=48000:d=4" -c:v mpeg4 -c:a aac -aac_pns 0 -b:a 128k -shortest prova\video.mp4
           Get-ChildItem prova
       - name: Confronto delle decodifiche
         shell: pwsh
@@ -94,7 +111,7 @@ jobs:
             $uscita = & $comando[0] $comando[1..($comando.Count - 1)] 2>&1 | Out-String
             Write-Output $uscita
             if ($LASTEXITCODE -ne 0) {
-              ($uscita -split "`r?`n" | Where-Object { $_.Trim() } | Select-Object -Last 15) |
+              ($uscita -split "`r?`n" | Where-Object { $_.Trim() } | Select-Object -Last 10) |
                 ForEach-Object { "::error title=$nome::$($_.Trim())" }
               exit 1
             }
