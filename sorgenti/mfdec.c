@@ -3,7 +3,8 @@
  *
  * Written for the FFmpeg build used by Eclipsis
  * (https://github.com/Sebiscapin/eclipsis-ffmpeg), 12 October 2026; not part of
- * the upstream FFmpeg sources.
+ * the upstream FFmpeg sources. 13 October 2026: ADTS streams (raw .aac files,
+ * MPEG-TS) are set up from the header of their first packet.
  *
  * This file is part of FFmpeg.
  *
@@ -35,6 +36,11 @@
  * packet: the generic code then trims the encoder priming exactly as it does
  * with the native decoder (FF_CODEC_CAP_SETS_FRAME_PROPS, so that the
  * properties of the last packet read are not used instead).
+ *
+ * ADTS streams have no AudioSpecificConfig, and neither the demuxers nor the
+ * AAC parser set the sample rate and the channels (the parser leaves them
+ * alone on purpose, because of HE-AAC): the MFT types are then set when the
+ * first packet arrives, from its ADTS header, as the native decoder does.
  */
 
 #define COBJMACROS
@@ -76,6 +82,7 @@ typedef struct MFDecContext {
     MFT_OUTPUT_STREAM_INFO out_info;
     int out_stream_provides_samples;
     int bytes_per_frame;
+    int types_set;              ///< input and output types given to the MFT
     int stream_started;
     int draining;
     int64_t next_time;
@@ -177,6 +184,22 @@ static int mfdec_set_input_type(AVCodecContext *avctx, int sample_rate,
     return ret;
 }
 
+// Tries the sample rates and channel counts in order until the MFT accepts
+// one: it is strict about how HE-AAC is signalled.
+static int mfdec_try_input_types(AVCodecContext *avctx, const int *rates, int nb_rates,
+                                 const int *chans, int nb_chans, int payload)
+{
+    int ret = AVERROR_EXTERNAL;
+
+    for (int i = 0; i < nb_rates && ret < 0; i++)
+        for (int j = 0; j < nb_chans && ret < 0; j++)
+            if (rates[i] > 0 && chans[j] > 0)
+                ret = mfdec_set_input_type(avctx, rates[i], chans[j], payload);
+    if (ret < 0)
+        av_log(avctx, AV_LOG_ERROR, "the Windows AAC decoder does not accept this stream\n");
+    return ret;
+}
+
 static int mfdec_set_output_type(AVCodecContext *avctx)
 {
     MFDecContext *c = avctx->priv_data;
@@ -259,6 +282,60 @@ static int mfdec_set_output_type(AVCodecContext *avctx)
     return 0;
 }
 
+// Sample rate and channel count from an ADTS header (ISO/IEC 14496-3, 1.A.2).
+static int mfdec_parse_adts(const uint8_t *buf, int size, int *sample_rate, int *channels)
+{
+    static const int adts_rates[13] = {
+        96000, 88200, 64000, 48000, 44100, 32000, 24000,
+        22050, 16000, 12000, 11025,  8000,  7350,
+    };
+    static const uint8_t adts_channels[8] = { 0, 1, 2, 3, 4, 5, 6, 8 };
+    int rate_index, chan_config;
+
+    // syncword 0xFFF, layer 0
+    if (!buf || size < 7 || buf[0] != 0xFF || (buf[1] & 0xF6) != 0xF0)
+        return AVERROR_INVALIDDATA;
+    rate_index  = (buf[2] >> 2) & 0x0F;
+    chan_config = ((buf[2] & 0x01) << 2) | (buf[3] >> 6);
+    // configuration 0 = channels given by a program config element: not handled
+    if ((unsigned)rate_index >= FF_ARRAY_ELEMS(adts_rates) || !chan_config)
+        return AVERROR_PATCHWELCOME;
+    *sample_rate = adts_rates[rate_index];
+    *channels    = adts_channels[chan_config];
+    return 0;
+}
+
+// ADTS: input and output types from the header of the first packet.
+static int mfdec_set_types_from_adts(AVCodecContext *avctx, const AVPacket *pkt)
+{
+    MFDecContext *c = avctx->priv_data;
+    int rates[2], chans[2];
+    int sample_rate = 0, channels = 0;
+    int ret;
+
+    ret = mfdec_parse_adts(pkt->data, pkt->size, &sample_rate, &channels);
+    if (ret < 0) {
+        av_log(avctx, AV_LOG_ERROR, "AAC without AudioSpecificConfig and without a "
+               "usable ADTS header: not supported\n");
+        return ret;
+    }
+    // The rate in the header is the core rate: with HE-AAC the MFT may want
+    // the output rate, twice as much.
+    rates[0] = sample_rate;
+    rates[1] = 2 * sample_rate;
+    chans[0] = channels;
+    chans[1] = avctx->ch_layout.nb_channels;
+    ret = mfdec_try_input_types(avctx, rates, FF_ARRAY_ELEMS(rates),
+                                chans, FF_ARRAY_ELEMS(chans), 1);
+    if (ret < 0)
+        return ret;
+    ret = mfdec_set_output_type(avctx);
+    if (ret < 0)
+        return ret;
+    c->types_set = 1;
+    return 0;
+}
+
 static av_cold int mfdec_init(AVCodecContext *avctx)
 {
     MFDecContext *c = avctx->priv_data;
@@ -308,30 +385,32 @@ static av_cold int mfdec_init(AVCodecContext *avctx)
         return AVERROR_EXTERNAL;
     }
 
-    if (payload == 0 &&
-        avpriv_mpeg4audio_get_config2(&m4ac, avctx->extradata, avctx->extradata_size,
+    // ADTS: the types are set when the first packet arrives
+    // (mfdec_set_types_from_adts).
+    if (payload == 1)
+        return 0;
+
+    if (avpriv_mpeg4audio_get_config2(&m4ac, avctx->extradata, avctx->extradata_size,
                                       1, avctx) < 0)
         memset(&m4ac, 0, sizeof(m4ac));
 
     // What the container says first, then the core of the stream, then the
-    // rate with SBR: the MFT is strict about how HE-AAC is signalled.
+    // rate with SBR.
     rates[0] = avctx->sample_rate;
     rates[1] = m4ac.sample_rate;
     rates[2] = m4ac.ext_sample_rate;
     rates[3] = 2 * m4ac.sample_rate;
     chans[0] = avctx->ch_layout.nb_channels;
     chans[1] = m4ac.channels;
-    ret = AVERROR_EXTERNAL;
-    for (int i = 0; i < FF_ARRAY_ELEMS(rates) && ret < 0; i++)
-        for (int j = 0; j < FF_ARRAY_ELEMS(chans) && ret < 0; j++)
-            if (rates[i] > 0 && chans[j] > 0)
-                ret = mfdec_set_input_type(avctx, rates[i], chans[j], payload);
-    if (ret < 0) {
-        av_log(avctx, AV_LOG_ERROR, "the Windows AAC decoder does not accept this stream\n");
+    ret = mfdec_try_input_types(avctx, rates, FF_ARRAY_ELEMS(rates),
+                                chans, FF_ARRAY_ELEMS(chans), payload);
+    if (ret < 0)
         return ret;
-    }
-
-    return mfdec_set_output_type(avctx);
+    ret = mfdec_set_output_type(avctx);
+    if (ret < 0)
+        return ret;
+    c->types_set = 1;
+    return 0;
 }
 
 static int mfdec_send_packet(AVCodecContext *avctx, const AVPacket *pkt)
@@ -495,36 +574,46 @@ static int mfdec_receive_output(AVCodecContext *avctx, AVFrame *frame)
     }
 }
 
+static int mfdec_start_stream(AVCodecContext *avctx)
+{
+    MFDecContext *c = avctx->priv_data;
+    HRESULT hr;
+
+    hr = IMFTransform_ProcessMessage(c->mft, MFT_MESSAGE_NOTIFY_BEGIN_STREAMING, 0);
+    if (!FAILED(hr))
+        hr = IMFTransform_ProcessMessage(c->mft, MFT_MESSAGE_NOTIFY_START_OF_STREAM, 0);
+    if (FAILED(hr)) {
+        av_log(avctx, AV_LOG_ERROR, "could not start the stream: %s\n", ff_hr_str(hr));
+        return AVERROR_EXTERNAL;
+    }
+    c->stream_started = 1;
+    return 0;
+}
+
 static int mfdec_receive_frame(AVCodecContext *avctx, AVFrame *frame)
 {
     MFDecContext *c = avctx->priv_data;
     HRESULT hr;
     int ret;
 
-    if (!c->stream_started) {
-        hr = IMFTransform_ProcessMessage(c->mft, MFT_MESSAGE_NOTIFY_BEGIN_STREAMING, 0);
-        if (!FAILED(hr))
-            hr = IMFTransform_ProcessMessage(c->mft, MFT_MESSAGE_NOTIFY_START_OF_STREAM, 0);
-        if (FAILED(hr)) {
-            av_log(avctx, AV_LOG_ERROR, "could not start the stream: %s\n", ff_hr_str(hr));
-            return AVERROR_EXTERNAL;
-        }
-        c->stream_started = 1;
-    }
-
     for (;;) {
-        ret = mfdec_receive_output(avctx, frame);
-        if (ret != AVERROR(EAGAIN))
-            return ret;
+        // Nothing to take out before the first packet has started the stream.
+        if (c->stream_started) {
+            ret = mfdec_receive_output(avctx, frame);
+            if (ret != AVERROR(EAGAIN))
+                return ret;
+        }
         if (c->draining)
             return AVERROR_EOF;
 
         av_packet_unref(c->pkt);
         ret = ff_decode_get_packet(avctx, c->pkt);
         if (ret == AVERROR_EOF) {
-            hr = IMFTransform_ProcessMessage(c->mft, MFT_MESSAGE_COMMAND_DRAIN, 0);
-            if (FAILED(hr))
-                av_log(avctx, AV_LOG_WARNING, "failed draining: %s\n", ff_hr_str(hr));
+            if (c->stream_started) {
+                hr = IMFTransform_ProcessMessage(c->mft, MFT_MESSAGE_COMMAND_DRAIN, 0);
+                if (FAILED(hr))
+                    av_log(avctx, AV_LOG_WARNING, "failed draining: %s\n", ff_hr_str(hr));
+            }
             c->draining = 1;
             continue;
         }
@@ -532,6 +621,12 @@ static int mfdec_receive_frame(AVCodecContext *avctx, AVFrame *frame)
             return ret;
         if (!c->pkt->size)
             continue;
+
+        // ADTS: the types come from the first packet; then the stream starts.
+        if (!c->types_set && (ret = mfdec_set_types_from_adts(avctx, c->pkt)) < 0)
+            return ret;
+        if (!c->stream_started && (ret = mfdec_start_stream(avctx)) < 0)
+            return ret;
 
         ret = mfdec_send_packet(avctx, c->pkt);
         av_packet_unref(c->pkt);

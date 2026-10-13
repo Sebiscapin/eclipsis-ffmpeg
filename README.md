@@ -24,7 +24,7 @@ successiva** ([COPYING.LGPLv3](COPYING.LGPLv3), che rimanda alla
   (`h264_mf`, `aac_mf`), quindi nessun codificatore H.264 o AAC è compilato negli eseguibili.
 - **Opzioni di compilazione**: tutte in [configurazione.txt](configurazione.txt).
 - **Avviso delle modifiche**: il sorgente di ogni release contiene `MODIFICHE_ECLIPSIS.txt`
-  (cosa è cambiato e quando, 12 ottobre 2026) e ogni riga aggiunta ai file di FFmpeg è
+  (cosa è cambiato e quando: 12 e 13 ottobre 2026) e ogni riga aggiunta ai file di FFmpeg è
   preceduta da un commento "Eclipsis".
 
 ## Come si compila
@@ -59,7 +59,7 @@ contains the FFmpeg build recipe; Eclipsis' own code is not here. The build is c
 with `--enable-version3`, so the executables are distributed under the GNU LGPL version 3
 or later (COPYING.LGPLv3, together with COPYING.GPLv3); it contains no GPL-only or nonfree
 parts. Every modified FFmpeg file carries an "Eclipsis" notice and each release includes
-MODIFICHE_ECLIPSIS.txt describing the changes (12 October 2026). AAC is decoded by
+MODIFICHE_ECLIPSIS.txt describing the changes (12 and 13 October 2026). AAC is decoded by
 the AAC decoder that ships with Windows (Media Foundation) through the `aac_mf` decoder in
 `sorgenti/mfdec.c`; FFmpeg's own AAC decoder and all unused encoders are disabled. Every
 release includes the complete corresponding source (`ffmpeg-sorgente.tar.gz`).

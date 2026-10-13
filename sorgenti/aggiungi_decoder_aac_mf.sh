@@ -62,7 +62,9 @@ This source is FFmpeg, modified for Eclipsis on 12 October 2026.
 Modifiche / Changes:
 - libavcodec/mfdec.c (file nuovo / new file): decoder "aac_mf", che decodifica l'AAC con il
   decoder di Windows (Media Foundation, CLSID_MSAACDecMFT). / AAC decoding through the
-  Windows AAC decoder MFT.
+  Windows AAC decoder MFT. Rivisto il 13 ottobre 2026: i flussi ADTS (.aac, MPEG-TS) si
+  impostano dall'intestazione del primo pacchetto. / Revised on 13 October 2026: ADTS
+  streams are set up from the header of their first packet.
 - configure, libavcodec/Makefile, libavcodec/allcodecs.c: righe che registrano il decoder,
   ognuna preceduta da un commento "Eclipsis, $DATA_MODIFICHE". / Lines that register the
   decoder, each preceded by an "Eclipsis" comment.
