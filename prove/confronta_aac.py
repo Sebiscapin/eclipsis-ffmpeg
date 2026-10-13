@@ -34,7 +34,8 @@ def annota(livello, titolo, testo):
 
 
 def decodifica(ffmpeg, percorso, decoder=None, livello="error"):
-    comando = [ffmpeg, "-v", livello]
+    # senza intestazione e avanzamento: con -v verbose restano solo i messaggi utili
+    comando = [ffmpeg, "-hide_banner", "-nostats", "-v", livello]
     if decoder:
         comando += ["-c:a", decoder]
     comando += ["-i", percorso, "-map", "0:a:0", "-f", "f32le", "-acodec", "pcm_f32le", "-"]
@@ -76,6 +77,11 @@ def primo_diverso(a, b):
 
 def main():
     ufficiale, eclipsis, file_prova = sys.argv[1], sys.argv[2], sys.argv[3:]
+    if not file_prova:
+        # senza file la prova passerebbe a vuoto
+        print("ERRORE   nessun file da confrontare", flush=True)
+        annota("error", "confronto", "nessun file da confrontare")
+        sys.exit(1)
     errori = 0
     for percorso in file_prova:
         nome = os.path.basename(percorso)

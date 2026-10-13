@@ -58,8 +58,10 @@ jobs:
             $r = Install-WindowsFeature Server-Media-Foundation
             $r | Format-List
             "::notice title=Media Foundation::installata adesso: Success=$($r.Success), RestartNeeded=$($r.RestartNeeded), ExitCode=$($r.ExitCode)"
+          } elseif ($f) {
+            "::notice title=Media Foundation::gia' presente"
           } else {
-            "::notice title=Media Foundation::gia' presente (Installed=$($f.Installed))"
+            "::notice title=Media Foundation::Get-WindowsFeature non disponibile su questa macchina"
           }
           Get-ChildItem C:\Windows\System32\msauddecmft.dll, C:\Windows\System32\mfplat.dll
           # aac_mf crea il decoder di Windows dal suo CLSID: deve essere registrato
@@ -96,6 +98,12 @@ jobs:
           & $env:UFFICIALE -v error -f lavfi -i "anoisesrc=d=4:c=pink:r=48000:a=0.3" -af "aformat=channel_layouts=5.1" -c:a aac -aac_pns 0 -b:a 384k prova\surround_51.m4a
           & $env:UFFICIALE -v error -f lavfi -i "testsrc2=s=320x240:r=30:d=4" -f lavfi -i "sine=frequency=500:sample_rate=48000:d=4" -c:v mpeg4 -c:a aac -aac_pns 0 -b:a 128k -shortest prova\video.mp4
           Get-ChildItem prova
+          # un file mancante farebbe passare il confronto senza averlo fatto
+          $n = (Get-ChildItem prova -File).Count
+          if ($n -ne 5) {
+            "::error title=file di prova::creati $n file su 5"
+            exit 1
+          }
       - name: Confronto delle decodifiche
         shell: pwsh
         run: |
