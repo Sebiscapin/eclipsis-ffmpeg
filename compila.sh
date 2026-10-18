@@ -53,16 +53,27 @@ grep '_ENCODER 1$' config_components.h > /lavoro/codificatori.txt
 grep '_DECODER 1$' config_components.h > /lavoro/decodificatori.txt
 
 # Le librerie esterne messe negli eseguibili: quelle che configure passa al linker
-# (EXTRALIBS) e che stanno in $FFBUILD_PREFIX, cioe' compilate da BtbN; le altre sono di
-# Windows o del compilatore. librerie.sh ne raccoglie il sorgente e le licenze.
+# (EXTRALIBS) e che stanno sotto $FFBUILD_PREFIX, cioe' compilate da BtbN; quelle che il
+# compilatore trova da solo sono di Windows o del compilatore. Una libreria che non sta
+# in nessuno dei due posti ferma la compilazione. librerie.sh ne raccoglie sorgente e licenze.
+grep -h '^EXTRALIBS' ffbuild/config.mak
 grep -h '^EXTRALIBS' ffbuild/config.mak | tr ' ' '\n' |
     sed -n -e 's/^-l//p' -e 's#^.*/lib\([^/]*\)\.a$#\1#p' | sort -u |
     while read -r lib; do
-        if [[ -f "$FFBUILD_PREFIX/lib/lib$lib.a" ]]; then
+        if [[ -n "$(find "$FFBUILD_PREFIX" -name "lib$lib.a" -print -quit)" ]]; then
             echo "$lib"
+        elif [[ "$($CC -print-file-name="lib$lib.a")" == /* ||
+                "$($CC -print-file-name="lib$lib.dll.a")" == /* ]]; then
+            echo "di Windows o del compilatore: $lib" >&2
+        else
+            echo "ERRORE: libreria non trovata: $lib ($(find / -xdev -name "lib$lib*.a" 2>/dev/null | head -n 5 | tr '\n' ' '))" >&2
+            echo "?$lib"
         fi
     done > /lavoro/librerie_collegate.txt
 cat /lavoro/librerie_collegate.txt
+if grep -q '^?' /lavoro/librerie_collegate.txt; then
+    exit 1
+fi
 # quelle chieste da configurazione.txt devono esserci (o l'elenco non e' stato letto bene)
 for lib in ass dav1d zimg SDL2 z; do
     grep -qx "$lib" /lavoro/librerie_collegate.txt
