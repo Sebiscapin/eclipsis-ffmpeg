@@ -57,7 +57,8 @@ grep '_DECODER 1$' config_components.h > /lavoro/decodificatori.txt
 # compilatore trova da solo sono di Windows o del compilatore. Una libreria che non sta
 # in nessuno dei due posti ferma la compilazione. librerie.sh ne raccoglie sorgente e licenze.
 grep -h '^EXTRALIBS' ffbuild/config.mak
-grep -h '^EXTRALIBS' ffbuild/config.mak | tr ' ' '\n' |
+# (la prima libreria e' attaccata al nome: "EXTRALIBS-ffplay=-lSDL2 ...")
+grep -h '^EXTRALIBS' ffbuild/config.mak | sed 's/^[^=]*=//' | tr ' ' '\n' |
     sed -n -e 's/^-l//p' -e 's#^.*/lib\([^/]*\)\.a$#\1#p' | sort -u |
     while read -r lib; do
         if [[ -n "$(find "$FFBUILD_PREFIX" -name "lib$lib.a" -print -quit)" ]]; then
