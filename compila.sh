@@ -3,8 +3,9 @@
 # FFmpeg 8.1 con le opzioni di configurazione.txt e il decoder AAC di Windows
 # (sorgenti/), dentro l'immagine Docker di BtbN/FFmpeg-Builds che contiene il compilatore
 # e le librerie gia' compilate (libass, zimg, dav1d, SDL2, zlib).
-# Uscita in ./uscita: gli eseguibili, il sorgente corrispondente (LGPL) e le impronte.
-# Serve Linux con Docker (lo fa da solo il workflow .github/workflows/compila.yml).
+# Uscita in ./uscita: gli eseguibili, il sorgente corrispondente (LGPL) di FFmpeg e delle
+# librerie esterne, gli avvisi di licenza e le impronte.
+# Serve Linux con Docker, git e python3 (lo fa da solo il workflow .github/workflows/compila.yml).
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -50,9 +51,29 @@ grep -q '^#define CONFIG_AAC_ENCODER 0' config_components.h
 grep -q '^#define CONFIG_LIBOPENH264_ENCODER 0' config_components.h
 grep '_ENCODER 1$' config_components.h > /lavoro/codificatori.txt
 grep '_DECODER 1$' config_components.h > /lavoro/decodificatori.txt
+
+# Le librerie esterne messe negli eseguibili: quelle che configure passa al linker
+# (EXTRALIBS) e che stanno in $FFBUILD_PREFIX, cioe' compilate da BtbN; le altre sono di
+# Windows o del compilatore. librerie.sh ne raccoglie il sorgente e le licenze.
+grep -h '^EXTRALIBS' ffbuild/config.mak | tr ' ' '\n' |
+    sed -n -e 's/^-l//p' -e 's#^.*/lib\([^/]*\)\.a$#\1#p' | sort -u |
+    while read -r lib; do
+        if [[ -f "$FFBUILD_PREFIX/lib/lib$lib.a" ]]; then
+            echo "$lib"
+        fi
+    done > /lavoro/librerie_collegate.txt
+cat /lavoro/librerie_collegate.txt
+# quelle chieste da configurazione.txt devono esserci (o l'elenco non e' stato letto bene)
+for lib in ass dav1d zimg SDL2 z; do
+    grep -qx "$lib" /lavoro/librerie_collegate.txt
+done
 FINE
 
 docker run --rm -e RAMO -u "$(id -u):$(id -g)" -v "$PWD/lavoro":/lavoro "$IMMAGINE" bash /lavoro/dentro.sh
+
+# sorgente e avvisi di licenza delle librerie esterne (uscita/librerie-sorgente.tar.gz,
+# uscita/LICENZE-LIBRERIE.txt, uscita/librerie_usate.txt)
+IMMAGINE="$IMMAGINE" bash librerie.sh
 
 cp lavoro/prefix/bin/ffmpeg.exe lavoro/prefix/bin/ffprobe.exe lavoro/prefix/bin/ffplay.exe uscita/
 cp lavoro/commit_ffmpeg.txt lavoro/ffmpeg-sorgente.tar.gz lavoro/codificatori.txt \
@@ -63,5 +84,6 @@ tar -xzf lavoro/ffmpeg-sorgente.tar.gz -C lavoro ffmpeg-eclipsis/COPYING.LGPLv3 
 cp lavoro/ffmpeg-eclipsis/COPYING.LGPLv3 uscita/LICENSE.txt
 cp lavoro/ffmpeg-eclipsis/COPYING.GPLv3 uscita/COPYING.GPLv3.txt
 cp lavoro/ffmpeg-eclipsis/MODIFICHE_ECLIPSIS.txt uscita/
-(cd uscita && sha256sum ffmpeg.exe ffprobe.exe ffplay.exe ffmpeg-sorgente.tar.gz > SHA256SUMS.txt)
+(cd uscita && sha256sum ffmpeg.exe ffprobe.exe ffplay.exe ffmpeg-sorgente.tar.gz \
+    librerie-sorgente.tar.gz > SHA256SUMS.txt)
 ls -la uscita

@@ -1,5 +1,5 @@
 """Confronta l'audio decodificato da due FFmpeg: quello ufficiale (decoder AAC di FFmpeg) e
-quello di Eclipsis (decoder AAC di Windows, aac_mf). Per ogni file: stesso numero di
+questa build (decoder AAC di Windows, aac_mf). Per ogni file: stesso numero di
 campioni, stesso inizio (lo scarto dei campioni iniziali, il "priming") e differenza
 massima. Solo libreria standard di Python.
 Uso: confronta_aac.py FFMPEG_UFFICIALE FFMPEG_ECLIPSIS FILE [FILE ...]
@@ -38,8 +38,8 @@ def decodifica(ffmpeg, percorso, decoder=None, livello="error"):
     comando = [ffmpeg, "-hide_banner", "-nostats", "-v", livello]
     if decoder:
         comando += ["-c:a", decoder]
-    # a 16 bit: la build di Eclipsis ha solo il codificatore pcm_s16le, l'unico che il
-    # programma usa; l'arrotondamento (1/32768, circa 3e-5) e' ben sotto le soglie
+    # a 16 bit: tra i codificatori PCM questa build ha solo pcm_s16le; l'arrotondamento
+    # (1/32768, circa 3e-5) e' ben sotto le soglie
     comando += ["-i", percorso, "-map", "0:a:0", "-f", "s16le", "-acodec", "pcm_s16le", "-"]
     uscita = subprocess.run(comando, capture_output=True)
     if uscita.returncode != 0:

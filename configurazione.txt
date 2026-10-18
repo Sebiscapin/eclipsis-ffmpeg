@@ -22,8 +22,8 @@
 --enable-libass
 --enable-libzimg
 --enable-libdav1d
-# Codificatori: solo quelli che il programma usa. H.264 e AAC sono quelli di Windows
-# (Media Foundation), che non sono dentro gli eseguibili.
+# Codificatori: solo quelli elencati. H.264 e AAC sono quelli di Windows (Media
+# Foundation), che non sono dentro gli eseguibili.
 --disable-encoders
 --enable-encoder=h264_mf,aac_mf,pcm_s16le,png,mjpeg,rawvideo,wrapped_avframe
 # Decodificatori: l'AAC lo decodifica Windows (aac_mf, vedi sorgenti/mfdec.c); il

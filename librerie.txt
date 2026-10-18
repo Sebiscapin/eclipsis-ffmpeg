@@ -1,0 +1,27 @@
+# Librerie esterne che il linker puo' mettere dentro gli eseguibili: arrivano gia' compilate
+# nell'immagine Docker di BtbN/FFmpeg-Builds. librerie.sh ne raccoglie il sorgente e gli
+# avvisi di licenza; se il linker usa una libreria che qui non c'e', la compilazione si
+# ferma (va aggiunta con la sua licenza).
+# Colonne:
+#   1. nomi della libreria per il linker (-l), separati da virgole; "-" = sempre presente
+#   2. nome dello script di BtbN in scripts.d (senza il numero davanti)
+#   3. licenza
+#   4. "sorgente" (sorgente e avviso) o "avviso" (solo l'avviso: parti della toolchain di
+#      BtbN, lo stadio "base", escluse dal sorgente corrispondente come "System Libraries",
+#      GPL 3 sez. 1)
+#   5. (facoltativa) file di licenza oltre a COPYING*, LICENSE*, COPYRIGHT*, NOTICE* della radice
+ass             libass             ISC                  sorgente
+fribidi         fribidi            LGPL-2.1-or-later    sorgente
+harfbuzz        harfbuzz           MIT                  sorgente
+freetype        freetype           FTL                  sorgente  docs/FTL.TXT
+fontconfig      fontconfig         MIT                  sorgente
+xml2            libxml2            MIT                  sorgente
+iconv,charset   libiconv           LGPL-2.1-or-later    sorgente
+unibreak        libunibreak        Zlib                 sorgente
+SDL2            sdl                Zlib                 sorgente
+samplerate      libsamplerate      BSD-2-Clause         sorgente
+dav1d           dav1d              BSD-2-Clause         sorgente
+zimg            zimg               WTFPL                sorgente
+z               zlib               Zlib                 sorgente
+-               mingw              ZPL-2.1,MIT          avviso    COPYING.MinGW-w64-runtime/COPYING.MinGW-w64-runtime.txt mingw-w64-libraries/winpthreads/COPYING
+-               mingw-std-threads  BSD-2-Clause         avviso
