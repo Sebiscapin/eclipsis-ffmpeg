@@ -17,7 +17,12 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
-      - name: Compila (Docker, immagine di BtbN)
+      # immagine (per impronta) e commit di FFmpeg-Builds: immagine.txt. compila.sh raccoglie
+      # anche licenze e sorgente di ogni libreria (raccogli_librerie.py) e si ferma se
+      # immagine, commit ed eseguibili non corrispondono
+      - name: Compila (Docker, immagine di FFmpeg-Builds)
+        env:
+          RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '' }}
         run: |
           set -o pipefail
           bash compila.sh 2>&1 | tee compilazione.log
@@ -26,7 +31,7 @@ jobs:
       - name: Errori della compilazione in evidenza
         if: failure()
         run: |
-          grep -n -E "error:|Error [0-9]|\*\*\*|ERRORE|No such file|not found|unbound variable" \
+          grep -n -E "error:|Error:|Error [0-9]|\*\*\*|ERRORE|No such file|not found|unbound variable|manifest unknown" \
             compilazione.log | tail -n 10 | while IFS= read -r riga; do
             echo "::error title=compilazione::${riga:0:900}"
           done
@@ -71,10 +76,10 @@ jobs:
           } else {
             "::warning title=decoder AAC di Windows::CLSID non registrato (serve un riavvio?)"
           }
-      - name: FFmpeg ufficiale di BtbN (riferimento col decoder AAC di FFmpeg)
+      - name: FFmpeg ufficiale di FFmpeg-Builds (riferimento col decoder AAC di FFmpeg)
         shell: pwsh
         run: |
-          Invoke-WebRequest https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.1-latest-win64-lgpl-8.1.zip -OutFile ufficiale.zip
+          Invoke-WebRequest https://github.com/FFmpeg-Builds/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.1-latest-win64-lgpl-8.1.zip -OutFile ufficiale.zip
           Expand-Archive ufficiale.zip -DestinationPath ufficiale
           $exe = Get-ChildItem ufficiale -Recurse -Filter ffmpeg.exe | Select-Object -First 1
           "UFFICIALE=$($exe.FullName)" | Out-File -Append $env:GITHUB_ENV
@@ -138,12 +143,16 @@ jobs:
         with:
           name: ffmpeg-eclipsis-win64
           path: uscita
-      - name: Release con gli eseguibili e il sorgente corrispondente
+      - name: Release con gli eseguibili, le licenze e il sorgente corrispondente
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           cd uscita
-          zip -9 ffmpeg-eclipsis-win64.zip ffmpeg.exe ffprobe.exe ffplay.exe LICENSE.txt SHA256SUMS.txt configurazione.txt commit_ffmpeg.txt immagine_docker.txt
+          # accanto agli eseguibili: LGPL 3 e la GPL 3 a cui rimanda, l'avviso delle modifiche
+          # e licenze/ (licenza e avvisi di ogni libreria collegata, librerie.json)
+          zip -9 -r ffmpeg-eclipsis-win64.zip ffmpeg.exe ffprobe.exe ffplay.exe LICENSE.txt \
+            COPYING.GPLv3.txt MODIFICHE_ECLIPSIS.txt licenze SHA256SUMS.txt configurazione.txt \
+            commit_ffmpeg.txt immagine_docker.txt versioni_immagine.txt
           gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --title "FFmpeg per Eclipsis $GITHUB_REF_NAME" \
-            --notes "Eseguibili di FFmpeg compilati da questo repository (LGPL 3) e il loro sorgente corrispondente." \
-            ffmpeg-eclipsis-win64.zip ffmpeg-sorgente.tar.gz
+            --notes "Eseguibili di FFmpeg compilati da questo repository (LGPL 3), con le licenze di ogni componente (cartella licenze dello zip). Sorgente corrispondente: ffmpeg-sorgente.tar.gz (FFmpeg con il decoder aac_mf) e librerie-sorgente.tar (ogni libreria collegata, FriBidi e libiconv comprese, ai commit esatti, con gli script di compilazione)." \
+            ffmpeg-eclipsis-win64.zip ffmpeg-sorgente.tar.gz librerie-sorgente.tar

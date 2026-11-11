@@ -1,3 +1,5 @@
 lavoro/
 uscita/
 __pycache__/
+# file da aggiungere a mano a una release gia' pubblicata (archivi pesanti, non sorgenti)
+release_*_aggiunte/

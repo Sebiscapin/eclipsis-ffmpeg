@@ -1,0 +1,18 @@
+# Base della compilazione (la legge compila.sh). Le due righe si cambiano sempre insieme.
+#
+# IMMAGINE: l'immagine Docker di FFmpeg-Builds con il compilatore e le librerie gia'
+# compilate, fissata per impronta (@sha256:...). Un'etichetta come "latest" cambia da sola
+# e con lei le librerie dentro gli eseguibili: compila.sh la rifiuta.
+IMMAGINE=ghcr.io/ffmpeg-builds/ffmpeg-builds/win64-lgpl-8.1@sha256:bf5a62bbe22565a374ec5c5558a86a5e4ca3cea61838431e6f55f77a5c90df41
+#
+# FFMPEG_BUILDS_COMMIT: il commit di FFmpeg-Builds da cui e' costruita quell'immagine. I suoi
+# script (scripts.d) fissano repository e commit di ogni libreria: raccogli_librerie.py ne
+# scarica il sorgente e scrive le licenze. Se le versioni dentro l'immagine o dentro gli
+# eseguibili non tornano con quel commit, la compilazione si ferma.
+FFMPEG_BUILDS_COMMIT=c9fe5114060e507409f7ee07edfd82efaf25d767
+#
+# Per aggiornare: impronta attuale di "latest"
+#   docker buildx imagetools inspect ghcr.io/ffmpeg-builds/ffmpeg-builds/win64-lgpl-8.1:latest
+# e commit di FFmpeg-Builds che l'ha prodotta (la sua compilazione su GitHub Actions). Le
+# immagini superate FFmpeg-Builds le cancella: un'impronta vecchia smette di funzionare
+# (errore "manifest unknown") e va aggiornata, con il commit, prima della release successiva.

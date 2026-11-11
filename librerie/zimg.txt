@@ -1,0 +1,42 @@
+zimg 3.0.6
+Origine / Source: https://github.com/sekrit-twc/zimg.git
+Commit: 67e0603271c080e22c8429856dd4a8a56587e61e
+Licenza / License (SPDX): WTFPL
+Negli eseguibili / In: ffmpeg.exe, ffprobe.exe, ffplay.exe
+
+Il sottomodulo test/extra/googletest serve solo alle prove: non è compilato
+negli eseguibili né incluso nell'archivio del sorgente.
+
+==============================================================================
+COPYING
+==============================================================================
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+                    Version 2, December 2004
+
+ Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+
+ Everyone is permitted to copy and distribute verbatim or modified
+ copies of this license document, and changing it is allowed as long
+ as the name is changed.
+
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+  0. You just DO WHAT THE FUCK YOU WANT TO.
+
+==============================================================================
+graphengine/COPYING
+==============================================================================
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+                    Version 2, December 2004
+
+ Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+
+ Everyone is permitted to copy and distribute verbatim or modified
+ copies of this license document, and changing it is allowed as long
+ as the name is changed.
+
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+  0. You just DO WHAT THE FUCK YOU WANT TO.

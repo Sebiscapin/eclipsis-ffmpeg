@@ -31,24 +31,38 @@ successiva** ([COPYING.LGPLv3](COPYING.LGPLv3), che rimanda alla
 
 Il workflow [.github/workflows/compila.yml](.github/workflows/compila.yml) esegue
 [compila.sh](compila.sh) su Linux: scarica FFmpeg 8.1, aggiunge il decoder e compila dentro
-l'immagine Docker di [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds)
+l'immagine Docker di [FFmpeg-Builds](https://github.com/FFmpeg-Builds/FFmpeg-Builds)
 (`win64-lgpl-8.1`), che contiene il compilatore e le librerie: libass (con FreeType,
-HarfBuzz, FriBidi), zimg, dav1d, SDL2, zlib. L'impronta esatta dell'immagine usata è in
-`immagine_docker.txt` di ogni release.
+HarfBuzz, FriBidi, Fontconfig, libxml2, libunibreak, libiconv), zimg, dav1d, SDL2 (con
+libsamplerate), zlib. L'immagine è fissata per impronta in [immagine.txt](immagine.txt),
+insieme al commit di FFmpeg-Builds da cui è costruita.
 
-Poi, su Windows, confronta l'audio decodificato da questa build con quello del FFmpeg
-ufficiale di BtbN ([prove/confronta_aac.py](prove/confronta_aac.py)) e prova gli encoder di
-Windows.
+Poi [raccogli_librerie.py](raccogli_librerie.py) legge in quel commit di FFmpeg-Builds
+repository e commit di ogni libreria collegata, ne scarica il sorgente, controlla che le
+versioni coincidano con quelle dell'immagine e con quelle scritte dentro gli eseguibili, e
+prepara le licenze e l'archivio del sorgente delle librerie.
+
+Infine, su Windows, confronta l'audio decodificato da questa build con quello del FFmpeg
+ufficiale di FFmpeg-Builds ([prove/confronta_aac.py](prove/confronta_aac.py)) e prova gli
+encoder di Windows.
 
 Ogni modifica caricata su `main` si compila e si prova; una release si crea solo con un
 tag `v...` (per esempio `v8.1-1`).
 
 ## Sorgente corrispondente
 
-Ogni release contiene, accanto agli eseguibili, `ffmpeg-sorgente.tar.gz`: il sorgente
-completo di FFmpeg esattamente come è stato compilato (con il decoder aggiunto). Le
-librerie esterne sono compilate dagli script di BtbN/FFmpeg-Builds, che fissano le loro
-versioni (cartella `scripts.d` di quel repository).
+Ogni release contiene, accanto agli eseguibili:
+
+- `ffmpeg-sorgente.tar.gz`: il sorgente completo di FFmpeg esattamente come è stato
+  compilato (con il decoder aggiunto);
+- `librerie-sorgente.tar`: il sorgente di ogni libreria collegata negli eseguibili (fra cui
+  FriBidi e libiconv, LGPL), al commit esatto, con gli script di FFmpeg-Builds che le hanno
+  compilate e questo repository al commit della release (vedi il suo `LEGGIMI.txt`).
+
+Dentro `ffmpeg-eclipsis-win64.zip`, la cartella `licenze/` ha la licenza e gli avvisi di
+ogni componente e `librerie.json` (nome, versione, commit, origine, licenza SPDX). Per la
+release v8.1-1, compilata prima, le stesse cose sono nell'allegato
+`ffmpeg-eclipsis-licenze.zip` e nella cartella [librerie/](librerie/) di questo repository.
 
 ---
 
@@ -62,4 +76,7 @@ parts. Every modified FFmpeg file carries an "Eclipsis" notice and each release 
 MODIFICHE_ECLIPSIS.txt describing the changes (12 and 13 October 2026). AAC is decoded by
 the AAC decoder that ships with Windows (Media Foundation) through the `aac_mf` decoder in
 `sorgenti/mfdec.c`; FFmpeg's own AAC decoder and all unused encoders are disabled. Every
-release includes the complete corresponding source (`ffmpeg-sorgente.tar.gz`).
+release includes the complete corresponding source: `ffmpeg-sorgente.tar.gz` (FFmpeg as
+built) and `librerie-sorgente.tar` (every statically linked library, FriBidi and libiconv
+included, at the exact commit, with the FFmpeg-Builds scripts that built them). The
+`licenze/` folder of the zip holds the license and notices of every component.

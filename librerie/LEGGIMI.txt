@@ -1,0 +1,47 @@
+Licenze dei componenti di ffmpeg.exe, ffprobe.exe e ffplay.exe v8.1-1
+Licenses of the components of ffmpeg.exe, ffprobe.exe and ffplay.exe
+
+Il sorgente di FFmpeg e di ogni libreria è pubblicato insieme agli eseguibili, nella
+stessa release (ffmpeg-sorgente.tar.gz e librerie-sorgente.tar):
+https://github.com/Sebiscapin/eclipsis-ffmpeg/releases
+
+- FFmpeg (libavcodec, libavformat, libavfilter, libavutil, libswscale, libswresample, libavdevice) n8.1.3-19-gd62c023504-eclipsis: LGPL-3.0-or-later
+    ffmpeg.txt
+- zlib 1.3.2.1-motley: Zlib
+    zlib.txt
+- GNU FriBidi 1.0.17: LGPL-2.1-or-later
+    fribidi.txt
+- GNU libiconv 1.19: LGPL-2.1-or-later
+    libiconv.txt
+- libxml2 2.16.0: MIT AND ISC-Veillard
+    libxml2.txt
+- FreeType 2.14.3: FTL AND MIT AND Zlib AND MIT-Modern-Variant
+    freetype.txt
+- Fontconfig 2.18.3: HPND-sell-variant AND MIT-Modern-Variant AND MIT AND Unicode-3.0 AND LicenseRef-Public-Domain
+    fontconfig.txt
+- HarfBuzz 14.5.0: MIT-Modern-Variant AND MIT AND ISC AND Unicode-3.0
+    harfbuzz.txt
+- libunibreak 8.0: Zlib
+    libunibreak.txt
+- libass 0.17.5: ISC AND HPND-UC AND Unlicense
+    libass.txt
+- zimg 3.0.6: WTFPL
+    zimg.txt
+- dav1d 1.5.4: BSD-2-Clause AND ISC
+    dav1d.txt
+- libsamplerate (Secret Rabbit Code) 0.2.2: BSD-2-Clause
+    libsamplerate.txt
+- SDL 2 2.33.0: Zlib AND BSD-3-Clause AND SunPro AND MIT
+    sdl2.txt
+- MinGW-w64 runtime (CRT) 15.0.0 (alpha): ZPL-2.1 AND ISC AND BSD-2-Clause AND MIT AND SunPro AND LicenseRef-Lucent-gdtoa AND LicenseRef-Cephes AND LicenseRef-Public-Domain AND LGPL-2.1-or-later
+    mingw-w64-crt.txt
+- winpthreads (MinGW-w64) 15.0.0 (alpha): MIT AND BSD-3-Clause
+    winpthreads.txt
+- Librerie di supporto di GCC (libgcc, libstdc++) 16.2.0: GPL-3.0-or-later WITH GCC-exception-3.1
+    gcc-runtime.txt
+- Dati Unicode (Unicode Character Database): Unicode-3.0
+    unicode.txt
+
+Portions of this software are copyright © 2026 The FreeType Project
+(https://freetype.org).  All rights reserved.
+
