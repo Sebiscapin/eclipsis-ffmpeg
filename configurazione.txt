@@ -23,9 +23,11 @@
 --enable-libzimg
 --enable-libdav1d
 # Codificatori: solo quelli che il programma usa. H.264 e AAC sono quelli di Windows
-# (Media Foundation), che non sono dentro gli eseguibili.
+# (Media Foundation), che non sono dentro gli eseguibili. (11/11/2026, v8.1-2) anche
+# pcm_f32le (il controllo del silenzio iniziale del motore e l'equalizzazione automatica
+# leggono l'audio in float) e pgm (la scelta del fotogramma piu' nitido).
 --disable-encoders
---enable-encoder=h264_mf,aac_mf,pcm_s16le,png,mjpeg,rawvideo,wrapped_avframe
+--enable-encoder=h264_mf,aac_mf,pcm_s16le,pcm_f32le,pgm,png,mjpeg,rawvideo,wrapped_avframe
 # Decodificatori: l'AAC lo decodifica Windows (aac_mf, vedi sorgenti/mfdec.c); il
 # decodificatore AAC di FFmpeg non c'e'. Niente VVC.
 --disable-decoder=aac,aac_fixed,aac_latm,vvc

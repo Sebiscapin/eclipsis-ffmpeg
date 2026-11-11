@@ -4,7 +4,8 @@
  * Written for the FFmpeg build used by Eclipsis
  * (https://github.com/Sebiscapin/eclipsis-ffmpeg), 12 October 2026; not part of
  * the upstream FFmpeg sources. 13 October 2026: ADTS streams (raw .aac files,
- * MPEG-TS) are set up from the header of their first packet.
+ * MPEG-TS) are set up from the header of their first packet. 11 November 2026:
+ * the profile and the frame size are reported like the native decoder does.
  *
  * This file is part of FFmpeg.
  *
@@ -283,7 +284,8 @@ static int mfdec_set_output_type(AVCodecContext *avctx)
 }
 
 // Sample rate and channel count from an ADTS header (ISO/IEC 14496-3, 1.A.2).
-static int mfdec_parse_adts(const uint8_t *buf, int size, int *sample_rate, int *channels)
+static int mfdec_parse_adts(const uint8_t *buf, int size, int *sample_rate, int *channels,
+                            int *object_type)
 {
     static const int adts_rates[13] = {
         96000, 88200, 64000, 48000, 44100, 32000, 24000,
@@ -302,7 +304,27 @@ static int mfdec_parse_adts(const uint8_t *buf, int size, int *sample_rate, int 
         return AVERROR_PATCHWELCOME;
     *sample_rate = adts_rates[rate_index];
     *channels    = adts_channels[chan_config];
+    *object_type = (buf[2] >> 6) + 1;    // profile_ObjectType + 1
     return 0;
+}
+
+// The profile and the samples per frame, as the native decoder reports them: ffprobe
+// shows the profile, and with raw streams (ADTS, MPEG-TS, Matroska, AVI) libavformat
+// computes the packet durations, and so the timestamps that seeking and -t rely on,
+// from the frame size. core_rate is the rate of the AAC core: an output at twice that
+// rate means SBR (HE-AAC), 2048 samples per frame.
+static void mfdec_set_profile(AVCodecContext *avctx, int core_rate, int object_type,
+                              int sbr, int ps)
+{
+    int doubled = core_rate > 0 && avctx->sample_rate == 2 * core_rate;
+
+    if (ps > 0)
+        avctx->profile = AV_PROFILE_AAC_HE_V2;
+    else if (sbr > 0 || doubled)
+        avctx->profile = AV_PROFILE_AAC_HE;
+    else if (object_type >= 1 && object_type <= 4)   // Main, LC, SSR, LTP
+        avctx->profile = object_type - 1;
+    avctx->frame_size = doubled ? 2048 : 1024;
 }
 
 // ADTS: input and output types from the header of the first packet.
@@ -310,10 +332,10 @@ static int mfdec_set_types_from_adts(AVCodecContext *avctx, const AVPacket *pkt)
 {
     MFDecContext *c = avctx->priv_data;
     int rates[2], chans[2];
-    int sample_rate = 0, channels = 0;
+    int sample_rate = 0, channels = 0, object_type = 0;
     int ret;
 
-    ret = mfdec_parse_adts(pkt->data, pkt->size, &sample_rate, &channels);
+    ret = mfdec_parse_adts(pkt->data, pkt->size, &sample_rate, &channels, &object_type);
     if (ret < 0) {
         av_log(avctx, AV_LOG_ERROR, "AAC without AudioSpecificConfig and without a "
                "usable ADTS header: not supported\n");
@@ -332,6 +354,7 @@ static int mfdec_set_types_from_adts(AVCodecContext *avctx, const AVPacket *pkt)
     ret = mfdec_set_output_type(avctx);
     if (ret < 0)
         return ret;
+    mfdec_set_profile(avctx, sample_rate, object_type, 0, 0);
     c->types_set = 1;
     return 0;
 }
@@ -409,6 +432,7 @@ static av_cold int mfdec_init(AVCodecContext *avctx)
     ret = mfdec_set_output_type(avctx);
     if (ret < 0)
         return ret;
+    mfdec_set_profile(avctx, m4ac.sample_rate, m4ac.object_type, m4ac.sbr, m4ac.ps);
     c->types_set = 1;
     return 0;
 }
