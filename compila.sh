@@ -65,6 +65,15 @@ grep -q '^#define CONFIG_LIBOPENH264_ENCODER 0' config_components.h
 grep '_ENCODER 1$' config_components.h > /lavoro/codificatori.txt
 grep '_DECODER 1$' config_components.h > /lavoro/decodificatori.txt
 
+# i file del sorgente davvero compilati, dalle dipendenze .d che make lascia accanto a ogni
+# oggetto: raccogli_librerie.py ne copia gli avvisi con licenze diverse dalla LGPL
+# (AVVISI_FFMPEG.txt)
+find . -name '*.d' -not -path './tests/*' -not -path './doc/*' -not -path './ffbuild/*' -print0 \
+    | xargs -0 cat | tr -s ' ' '\n' | sed -e 's|^\./||' \
+    | grep -E '\.(c|h|cpp|asm|S|inc|css|html)$' | grep -v -E '^(/|tests/|doc/|tools/|ffbuild/)' \
+    | sort -u > /lavoro/file_compilati_ffmpeg.txt
+test -s /lavoro/file_compilati_ffmpeg.txt
+
 # versioni delle librerie e del compilatore dentro l'immagine: raccogli_librerie.py le
 # confronta con il sorgente che scarica (se non tornano, immagine e commit non sono coppia)
 mingw_v() { echo '#include <_mingw.h>' | $CC -dM -E - | sed -n "s/^#define __MINGW64_VERSION_$1 //p"; }
@@ -86,7 +95,8 @@ docker run --rm -e RAMO -u "$(id -u):$(id -g)" -v "$PWD/lavoro":/lavoro "$IMMAGI
 
 cp lavoro/prefix/bin/ffmpeg.exe lavoro/prefix/bin/ffprobe.exe lavoro/prefix/bin/ffplay.exe uscita/
 cp lavoro/commit_ffmpeg.txt lavoro/ffmpeg-sorgente.tar.gz lavoro/codificatori.txt \
-   lavoro/decodificatori.txt lavoro/versioni_immagine.txt configurazione.txt uscita/
+   lavoro/decodificatori.txt lavoro/versioni_immagine.txt lavoro/file_compilati_ffmpeg.txt \
+   configurazione.txt uscita/
 tar -xzf lavoro/ffmpeg-sorgente.tar.gz -C lavoro ffmpeg-eclipsis/COPYING.LGPLv3 \
     ffmpeg-eclipsis/COPYING.GPLv3 ffmpeg-eclipsis/MODIFICHE_ECLIPSIS.txt
 # LGPL 3: il testo della LGPL, quello della GPL a cui rimanda e l'avviso delle modifiche
@@ -101,6 +111,8 @@ python3 raccogli_librerie.py --ffmpeg-builds "$FFMPEG_BUILDS_COMMIT" --lavoro la
     --licenze uscita/licenze --archivio uscita/librerie-sorgente.tar \
     --eseguibili uscita/ffmpeg.exe uscita/ffprobe.exe uscita/ffplay.exe \
     --commit-ffmpeg uscita/commit_ffmpeg.txt --modifiche uscita/MODIFICHE_ECLIPSIS.txt \
+    --ffmpeg-compilati uscita/file_compilati_ffmpeg.txt --sorgente-ffmpeg lavoro/ffmpeg \
+    --origine-elenco "dipendenze .d della compilazione: file_compilati_ffmpeg.txt" \
     --immagine "$IMMAGINE" --versioni-immagine uscita/versioni_immagine.txt --release "$RELEASE"
 
 (cd uscita && sha256sum ffmpeg.exe ffprobe.exe ffplay.exe ffmpeg-sorgente.tar.gz \

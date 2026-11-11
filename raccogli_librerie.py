@@ -390,6 +390,153 @@ def righe_copyright(repo: Repo, prefissi: list) -> list:
     return sorted(righe)
 
 
+# --------------------------------------------------------------------------------------
+# avvisi dei file di FFmpeg con licenze diverse dalla LGPL (AVVISI_FFMPEG.txt)
+# --------------------------------------------------------------------------------------
+MARCATORI_AVVISI = [
+    # le condizioni IJG valgono anche per il codice derivato ("based upon the IJG ... DCT")
+    ("IJG", r"Independent JPEG Group|\bIJG\b"),
+    ("BSD", r"Redistribution and use in source and binary forms|\bBSD[- ](style )?licen[cs]ed?|\(new\) BSD"),
+    # (la Boost dice "to any person or organization": non e' la MIT)
+    ("MIT", r"Permission is hereby granted,? free of charge,? to any person obtaining|"
+            r"\bMIT[- ]licen[cs]ed?|\bExpat licen"),
+    ("ISC", r"Permission to use, copy, modify,? (and/or |and )?distribute"),
+    ("Zlib", r"provided ['\"]as-is['\"]"),
+    ("Boost", r"Boost Software License"),
+    ("WTFPL", r"\bWTFPL\b|DO WHAT THE FUCK"),
+    ("Apache", r"Apache License"),
+    ("SoX", r"freely redistributable"),
+    ("PD", r"public domain|unencumbered software"),
+]
+
+
+def _normalizza(testo: str) -> str:
+    return re.sub(r"\s+", " ", " ".join(re.sub(r"^[\s*/#;!]+", "", r).strip() for r in testo.splitlines()))
+
+
+def blocchi_commento(testo: str, asm: bool):
+    """[(prima riga, ultima riga, testo)] dei commenti: /* ... */ e righe // (C), righe ; (asm)."""
+    righe = testo.splitlines()
+    blocchi, i = [], 0
+    while i < len(righe):
+        r = righe[i].strip()
+        if asm and r.startswith(";"):
+            j = i
+            while j + 1 < len(righe) and righe[j + 1].strip().startswith(";"):
+                j += 1
+            blocchi.append((i + 1, j + 1, "\n".join(righe[i:j + 1])))
+            i = j + 1
+            continue
+        if not asm and r.startswith("//"):
+            j = i
+            while j + 1 < len(righe) and righe[j + 1].strip().startswith("//"):
+                j += 1
+            blocchi.append((i + 1, j + 1, "\n".join(righe[i:j + 1])))
+            i = j + 1
+            continue
+        if not asm and "/*" in righe[i]:
+            j = i
+            while j < len(righe) and "*/" not in righe[j][(righe[j].find("/*") + 2) if j == i else 0:]:
+                j += 1
+            j = min(j, len(righe) - 1)
+            blocchi.append((i + 1, j + 1, "\n".join(righe[i:j + 1])))
+            i = j + 1
+            continue
+        i += 1
+    return blocchi
+
+
+def avvisi_ffmpeg(leggi, compilati: list) -> list:
+    """Per ogni file compilato con una licenza diversa dalla LGPL (o in aggiunta): (file, tipi,
+    [blocchi di commento con licenza e copyright, testuali])."""
+    trovati = []
+    for f in compilati:
+        testo = leggi(f)
+        if testo is None:
+            continue
+        blocchi = blocchi_commento(testo, f.endswith((".asm", ".inc")))
+        scelti, tipi = [], []
+        for i, (a, b, t) in enumerate(blocchi):
+            norm = _normalizza(t)
+            qui = [n for n, r in MARCATORI_AVVISI if re.search(r, norm, re.I)]
+            if qui:
+                scelti.append((a, b, t))
+                tipi += [x for x in qui if x not in tipi]
+        if not scelti:
+            continue
+        primo = blocchi[0]
+        if primo not in scelti and re.search(r"copyright", primo[2], re.I):
+            scelti.insert(0, primo)        # l'intestazione col copyright del file
+        trovati.append((f, tipi, scelti))
+    return trovati
+
+
+def testo_avvisi_ffmpeg(trovati: list, versione: str, commit: str, origine_elenco: str,
+                        release: str) -> str:
+    ijg = [f for f, tipi, _ in trovati if "IJG" in tipi]
+    righe = ["AVVISI DEI FILE DI FFmpeg CON LICENZE DIVERSE DALLA LGPL",
+             "Notices of the FFmpeg files under licenses other than the LGPL", "",
+             f"FFmpeg {versione} (commit {commit}) in ffmpeg.exe, ffprobe.exe e ffplay.exe"
+             + (f" della release {release} di eclipsis-ffmpeg." if release else "."), "",
+             "FFmpeg nel suo insieme è distribuito con la LGPL versione 3 o successiva (ffmpeg.txt).",
+             "Alcuni dei file compilati nei programmi hanno anche, o soltanto, un'altra licenza (BSD,",
+             "MIT, ISC, IJG, Zlib, Boost, pubblico dominio...): qui sotto, per ognuno, i commenti con",
+             "la licenza e il copyright, copiati dal sorgente senza modifiche. Sono solo i file",
+             f"davvero compilati con la nostra configurazione ({origine_elenco}).", "",
+             "FFmpeg as a whole is distributed under the LGPL version 3 or later. Some files compiled",
+             "into the programs also, or only, carry another license: below are their license and",
+             "copyright comments, copied verbatim from the source. Only the files actually compiled",
+             "with our configuration are listed."]
+    if ijg:
+        righe += ["", "Independent JPEG Group",
+                  "  This software is based in part on the work of the Independent JPEG Group.",
+                  "  (Questo software si basa in parte sul lavoro dell'Independent JPEG Group.)",
+                  f"  File: {', '.join(ijg)}.",
+                  "  Le modifiche di FFmpeg a questi file rispetto agli originali di libjpeg sono nella",
+                  "  cronologia di FFmpeg (https://github.com/FFmpeg/FFmpeg, git log -- <file>). /",
+                  "  FFmpeg's changes to these files are recorded in FFmpeg's history."]
+    righe += ["", f"Indice / Index ({len(trovati)} file)"]
+    righe += [f"  {'+'.join(tipi):24s} {f}" for f, tipi, _ in trovati]
+    for f, tipi, scelti in trovati:
+        righe += ["", LINEA, f"{f}   [{'+'.join(tipi)}]", LINEA]
+        for a, b, t in scelti:
+            righe += [f"(righe {a}-{b})", t.rstrip("\n")]
+    return "\n".join(righe) + "\n"
+
+
+def lettore_sorgente(percorso: Path, commit):
+    """Legge un file del sorgente di FFmpeg: da una cartella (l'albero della compilazione) o da
+    un repository git nudo al commit della build."""
+    if percorso is None:
+        raise RuntimeError("--ffmpeg-compilati richiede --sorgente-ffmpeg")
+    percorso = Path(percorso)
+    if (percorso / "configure").is_file():
+        def leggi(f):
+            p = percorso / f
+            return p.read_text(encoding="utf-8", errors="replace") if p.is_file() else None
+        return leggi
+    if not commit:
+        raise RuntimeError("sorgente di FFmpeg da un repository git: serve --commit-ffmpeg")
+    processo = subprocess.Popen(["git", "-C", str(percorso), "cat-file", "--batch"], stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE)
+
+    def leggi_git(f):
+        processo.stdin.write(f"{commit}:{f}\n".encode("utf-8"))
+        processo.stdin.flush()
+        testa = processo.stdout.readline().split()
+        if len(testa) < 3 or testa[1] != b"blob":
+            return None
+        dati = processo.stdout.read(int(testa[2]))
+        processo.stdout.read(1)
+        return dati.decode("utf-8", "replace")
+    return leggi_git
+
+
+def leggi_elenco(percorso: Path) -> list:
+    return [r.strip() for r in percorso.read_text(encoding="utf-8").splitlines()
+            if r.strip() and not r.startswith("#")]
+
+
 def testo_licenza(voce: dict, versione: str, commit, origine: str, eseguibili: list,
                   blocchi: list, copyright=()) -> str:
     righe = [f"{voce['nome']} {versione}".rstrip(), f"Origine / Source: {origine}"]
@@ -614,13 +761,29 @@ def scrivi_licenze(a, uscita: Path, info: dict, repos: dict, gcc: dict, eseguibi
                       "corrispondente è ffmpeg-sorgente.tar.gz della stessa release."])
     scrivi_testo(testi / "ffmpeg.txt", testo_licenza(
         ff, versione_ff or "", commit_ff, "https://github.com/FFmpeg/FFmpeg.git", TUTTI, blocchi))
-    elenco.append(dict(id="ffmpeg", nome=ff["nome"], versione=versione_ff or None, commit=commit_ff,
-                       origine="https://github.com/FFmpeg/FFmpeg.git", licenza=ff["licenza"],
-                       testo=f"{pref}ffmpeg.txt", sorgente_obbligatorio=True,
-                       motivo_sorgente="obbligatorio: licenza di FFmpeg (LGPL-3.0-or-later)",
-                       eseguibili=TUTTI,
-                       nota="commit del ramo release/8.1 a cui compila.sh aggiunge il decoder "
-                            "aac_mf; sorgente in ffmpeg-sorgente.tar.gz della stessa release"))
+    voce_ff = dict(id="ffmpeg", nome=ff["nome"], versione=versione_ff or None, commit=commit_ff,
+                   origine="https://github.com/FFmpeg/FFmpeg.git", licenza=ff["licenza"],
+                   testo=f"{pref}ffmpeg.txt", sorgente_obbligatorio=True,
+                   motivo_sorgente="obbligatorio: licenza di FFmpeg (LGPL-3.0-or-later)",
+                   eseguibili=TUTTI,
+                   nota="commit del ramo release/8.1 a cui compila.sh aggiunge il decoder "
+                        "aac_mf; sorgente in ffmpeg-sorgente.tar.gz della stessa release")
+    if a.ffmpeg_compilati:
+        # gli avvisi dei file di FFmpeg compilati con licenze diverse dalla LGPL
+        leggi = lettore_sorgente(a.sorgente_ffmpeg, commit_ff)
+        compilati = leggi_elenco(a.ffmpeg_compilati)
+        trovati = avvisi_ffmpeg(leggi, compilati)
+        if not trovati:
+            raise RuntimeError("nessun avviso trovato nei file di FFmpeg compilati: elenco o sorgente sbagliati?")
+        scrivi_testo(testi / "AVVISI_FFMPEG.txt", testo_avvisi_ffmpeg(
+            trovati, versione_ff or "", commit_ff or "", a.origine_elenco or a.ffmpeg_compilati.name,
+            a.release))
+        voce_ff["avvisi"] = f"{pref}AVVISI_FFMPEG.txt"
+        voce_ff["avvisi_file"] = len(trovati)
+        tipi = sorted({t for _, ts, _ in trovati for t in ts})
+        voce_ff["avvisi_licenze"] = tipi
+        scrivi(f"avvisi di FFmpeg: {len(trovati)} file su {len(compilati)} compilati ({', '.join(tipi)})")
+    elenco.append(voce_ff)
 
     for voce in RICETTA:
         i, repo = info[voce["id"]], repos[voce["id"]]
@@ -682,9 +845,13 @@ def scrivi_licenze(a, uscita: Path, info: dict, repos: dict, gcc: dict, eseguibi
              "stessa release (ffmpeg-sorgente.tar.gz e librerie-sorgente.tar):",
              "https://github.com/Sebiscapin/eclipsis-ffmpeg/releases", ""]
     righe += [f"- {v['nome']}{' ' + v['versione'] if v.get('versione') else ''}: {v['licenza']}"
-              f"\n    {v['testo']}" for v in elenco]
+              f"\n    {v['testo']}" + (f"\n    {v['avvisi']} (file di FFmpeg con licenze diverse dalla LGPL)"
+                                       if v.get("avvisi") else "") for v in elenco]
     righe += ["", f"Portions of this software are copyright © {anno_ft} The FreeType Project",
-              "(https://freetype.org).  All rights reserved.", ""]
+              "(https://freetype.org).  All rights reserved."]
+    if any("IJG" in v.get("avvisi_licenze", []) for v in elenco):
+        righe += ["", "This software is based in part on the work of the Independent JPEG Group."]
+    righe += [""]
     scrivi_testo(uscita / "LEGGIMI.txt", "\n".join(righe) + "\n")
     return elenco
 
@@ -785,6 +952,14 @@ def main():
     ap.add_argument("--commit-ffmpeg", type=Path, help="commit_ffmpeg.txt della build")
     ap.add_argument("--versione-ffmpeg", help="se manca, si legge in ffmpeg.exe")
     ap.add_argument("--modifiche", type=Path, help="MODIFICHE_ECLIPSIS.txt della build")
+    ap.add_argument("--ffmpeg-compilati", type=Path,
+                    help="elenco dei file del sorgente di FFmpeg compilati (uno per riga): con "
+                         "--sorgente-ffmpeg scrive AVVISI_FFMPEG.txt")
+    ap.add_argument("--sorgente-ffmpeg", type=Path,
+                    help="albero di FFmpeg della compilazione, o repository git nudo (al commit di "
+                         "--commit-ffmpeg)")
+    ap.add_argument("--origine-elenco", default="",
+                    help="come e' stato ricavato l'elenco dei file compilati (frase per AVVISI_FFMPEG.txt)")
     ap.add_argument("--immagine", default="", help="immagine Docker usata (con @sha256:)")
     ap.add_argument("--nota-immagine", default="", help="frase dopo l'immagine nel LEGGIMI")
     ap.add_argument("--versioni-immagine", type=Path, help="versioni_immagine.txt di compila.sh")

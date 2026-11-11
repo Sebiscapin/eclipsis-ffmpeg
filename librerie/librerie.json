@@ -15,6 +15,19 @@
       "ffplay.exe"
     ],
     "nota": "commit del ramo release/8.1 a cui compila.sh aggiunge il decoder aac_mf; sorgente in ffmpeg-sorgente.tar.gz della stessa release",
+    "avvisi": "AVVISI_FFMPEG.txt",
+    "avvisi_file": 63,
+    "avvisi_licenze": [
+      "BSD",
+      "Boost",
+      "IJG",
+      "ISC",
+      "MIT",
+      "PD",
+      "SoX",
+      "WTFPL",
+      "Zlib"
+    ],
     "release": "v8.1-1"
   },
   {

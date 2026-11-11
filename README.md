@@ -60,7 +60,9 @@ Ogni release contiene, accanto agli eseguibili:
   compilate e questo repository al commit della release (vedi il suo `LEGGIMI.txt`).
 
 Dentro `ffmpeg-eclipsis-win64.zip`, la cartella `licenze/` ha la licenza e gli avvisi di
-ogni componente e `librerie.json` (nome, versione, commit, origine, licenza SPDX). Per la
+ogni componente, `AVVISI_FFMPEG.txt` (gli avvisi dei file di FFmpeg compilati che hanno anche
+un'altra licenza: BSD, MIT, ISC, IJG...) e `librerie.json` (nome, versione, commit, origine,
+licenza SPDX). Per la
 release v8.1-1, compilata prima, le stesse cose sono nell'allegato
 `ffmpeg-eclipsis-licenze.zip` e nella cartella [librerie/](librerie/) di questo repository.
 
