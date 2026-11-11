@@ -29,8 +29,10 @@
 --disable-encoders
 --enable-encoder=h264_mf,aac_mf,pcm_s16le,pcm_f32le,pgm,png,mjpeg,rawvideo,wrapped_avframe
 # Decodificatori: l'AAC lo decodifica Windows (aac_mf, vedi sorgenti/mfdec.c); il
-# decodificatore AAC di FFmpeg non c'e'. Niente VVC.
---disable-decoder=aac,aac_fixed,aac_latm,vvc
---enable-decoder=aac_mf
+# decodificatore AAC di FFmpeg non c'e'. Niente VVC. (11/11/2026) Anche l'H.264 lo decodifica
+# Windows (h264_mf, vedi sorgenti/mfvdec.c): il decodificatore H.264 di FFmpeg non c'e'; il
+# parser h264 e il filtro h264_mp4toannexb restano (li usano i demuxer e h264_mf).
+--disable-decoder=aac,aac_fixed,aac_latm,vvc,h264
+--enable-decoder=aac_mf,h264_mf
 # File con licenza GPL che configure non lega a --enable-gpl.
 --disable-filter=perlin,codecview
