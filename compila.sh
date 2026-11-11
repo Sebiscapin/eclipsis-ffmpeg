@@ -69,7 +69,7 @@ grep '_DECODER 1$' config_components.h > /lavoro/decodificatori.txt
 # oggetto: raccogli_librerie.py ne copia gli avvisi con licenze diverse dalla LGPL
 # (AVVISI_FFMPEG.txt)
 find . -name '*.d' -not -path './tests/*' -not -path './doc/*' -not -path './ffbuild/*' -print0 \
-    | xargs -0 cat | tr -s ' ' '\n' | sed -e 's|^\./||' \
+    | xargs -0 cat | tr -s ' ' '\n' | sed -e 's|^/lavoro/ffmpeg/||' -e 's|^\./||' \
     | grep -E '\.(c|h|cpp|asm|S|inc|css|html)$' | grep -v -E '^(/|tests/|doc/|tools/|ffbuild/)' \
     | sort -u > /lavoro/file_compilati_ffmpeg.txt
 test -s /lavoro/file_compilati_ffmpeg.txt
