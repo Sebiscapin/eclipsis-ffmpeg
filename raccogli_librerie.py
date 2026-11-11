@@ -108,12 +108,12 @@ def _v_mingw(l):
 #   immagine: nome della riga in versioni_immagine.txt
 # --------------------------------------------------------------------------------------
 RICETTA = [
-    dict(id="zlib", nome="zlib", script="20-zlib.sh", licenza="Zlib", obbligatorio=False,
+    dict(id="zlib", nome="zlib", script="20-zlib.sh", licenza="Zlib", obbligo="ffmpeg",
          file=["LICENSE"], immagine="zlib",
          versione=lambda l: _cerca(l, "zlib.h", r'#define ZLIB_VERSION "([^"]+)"'),
          nota="compressione (PNG, filtri e formati di FFmpeg)"),
     dict(id="fribidi", nome="GNU FriBidi", script="25-fribidi.sh",
-         licenza="LGPL-2.1-or-later", obbligatorio=True, file=["COPYING", "AUTHORS"],
+         licenza="LGPL-2.1-or-later", obbligo="propria", file=["COPYING", "AUTHORS"],
          copyright_da=["lib/"], versione=_v_meson, immagine="fribidi",
          nota="testo bidirezionale dei sottotitoli (libass)",
          avvisi=["FriBidi è collegata in modo statico. Il sorgente di tutte le parti degli",
@@ -121,7 +121,7 @@ RICETTA = [
                  "insieme ai programmi: si può modificare FriBidi e ricollegare i programmi",
                  "(LGPL-2.1 sez. 6)."]),
     dict(id="libiconv", nome="GNU libiconv", script="20-libiconv.sh",
-         licenza="LGPL-2.1-or-later", obbligatorio=True, file=["COPYING.LIB"],
+         licenza="LGPL-2.1-or-later", obbligo="propria", file=["COPYING.LIB"],
          copyright_da=["lib/", "libcharset/lib/"], versione=_v_libiconv, immagine="libiconv",
          nota="conversione delle codifiche (libass, libxml2, Fontconfig, SDL)",
          parti=[dict(nome="gnulib", percorso="gnulib", var="SCRIPT_REPO2", mirror="SCRIPT_MIRROR2",
@@ -130,11 +130,11 @@ RICETTA = [
          avvisi=["Solo la libreria (lib/, libcharset/): il programma iconv (GPL) non c'è.",
                  "Collegata in modo statico: vedi l'avviso di FriBidi sul ricollegamento."]),
     dict(id="libxml2", nome="libxml2", script="25-libxml2.sh", licenza="MIT AND ISC-Veillard",
-         obbligatorio=False, file=["Copyright"], intestazioni=["dict.c", "list.c", "timsort.h"],
+         obbligo="ffmpeg", file=["Copyright"], intestazioni=["dict.c", "list.c", "timsort.h"],
          versione=lambda l: l("VERSION").strip(), immagine="libxml-2.0",
          nota="lettura dei file di configurazione di Fontconfig"),
     dict(id="freetype", nome="FreeType", script="45-fonts/50-freetype.sh",
-         licenza="FTL AND MIT AND Zlib AND MIT-Modern-Variant", obbligatorio=False,
+         licenza="FTL AND MIT AND Zlib AND MIT-Modern-Variant", obbligo="ffmpeg",
          file=["LICENSE.TXT", "docs/FTL.TXT", "src/bdf/README", "src/pcf/README"],
          intestazioni=["src/base/fthash.c", "src/gzip/zlib.h", "src/autofit/ft-hb-ft.c"],
          versione=_v_freetype, immagine="freetype",
@@ -152,26 +152,26 @@ RICETTA = [
                  "(This software is based in part on the work of the FreeType Team.)"]),
     dict(id="fontconfig", nome="Fontconfig", script="45-fonts/35-fontconfig.sh",
          licenza="HPND-sell-variant AND MIT-Modern-Variant AND MIT AND Unicode-3.0 AND "
-                 "LicenseRef-Public-Domain", obbligatorio=False, file=["COPYING"],
+                 "LicenseRef-Public-Domain", obbligo="ffmpeg", file=["COPYING"],
          versione=_v_meson, immagine="fontconfig",
          nota="ricerca dei caratteri per libass (insieme a DirectWrite di Windows)"),
     dict(id="harfbuzz", nome="HarfBuzz", script="45-fonts/45-harfbuzz.sh",
-         licenza="MIT-Modern-Variant AND MIT AND ISC AND Unicode-3.0", obbligatorio=False,
+         licenza="MIT-Modern-Variant AND MIT AND ISC AND Unicode-3.0", obbligo="ffmpeg",
          file=["COPYING", "src/ms-use/COPYING"],
          intestazioni=["src/hb-ucd.cc", "src/hb-unicode-emoji-table.hh"],
          versione=_v_meson, immagine="harfbuzz",
          nota="composizione del testo (libass); compilata con FreeType e GDI/Uniscribe"),
     dict(id="libunibreak", nome="libunibreak", script="45-libunibreak.sh", licenza="Zlib",
-         obbligatorio=False, file=["LICENCE"], immagine="libunibreak",
+         obbligo="ffmpeg", file=["LICENCE"], immagine="libunibreak",
          versione=lambda l: _cerca(l, "configure.ac", r"AC_INIT\(\[libunibreak\],\s*\[([^\]]+)\]"),
          nota="a capo dei sottotitoli secondo le regole Unicode (libass)"),
     dict(id="libass", nome="libass", script="50-libass.sh", licenza="ISC AND HPND-UC AND Unlicense",
-         obbligatorio=False, file=["COPYING"],
+         obbligo="ffmpeg", file=["COPYING"],
          intestazioni=["libass/ass_strtod.c", "libass/x86/x86inc.asm", "libass/wyhash.h"],
          versione=lambda l: l("RELEASEVERSION").strip(), immagine="libass",
          nota="disegno dei sottotitoli (filtro subtitles)",
          avvisi=["Compilata con Fontconfig, DirectWrite, HarfBuzz, FriBidi e libunibreak."]),
-    dict(id="zimg", nome="zimg", script="50-zimg.sh", licenza="WTFPL", obbligatorio=False,
+    dict(id="zimg", nome="zimg", script="50-zimg.sh", licenza="WTFPL", obbligo="ffmpeg",
          file=["COPYING"], parti_file={"graphengine": ["COPYING"]}, immagine="zimg",
          versione=lambda l: _cerca(l, "configure.ac", r"AC_INIT\(\[zimg\],\s*\[([^\]]+)\]"),
          nota="filtro zscale (conversione di colore e dimensioni)",
@@ -180,19 +180,19 @@ RICETTA = [
          avvisi=["Il sottomodulo test/extra/googletest serve solo alle prove: non è compilato",
                  "negli eseguibili né incluso nell'archivio del sorgente."]),
     dict(id="dav1d", nome="dav1d", script="50-dav1d.sh", licenza="BSD-2-Clause AND ISC",
-         obbligatorio=False, file=["COPYING", "doc/PATENTS"],
+         obbligo="ffmpeg", file=["COPYING", "doc/PATENTS"],
          intestazioni=["src/ext/x86/x86inc.asm"], versione=_v_meson, immagine="dav1d",
          nota="decoder AV1; doc/PATENTS (AOM Patent License 1.0) va riportata con i binari",
          avvisi=["doc/PATENTS è la Alliance for Open Media Patent License 1.0: la sua",
                  "sezione 1.2.1(b) chiede di riprodurla nella documentazione di chi",
                  "distribuisce un'implementazione in forma binaria (è qui sotto)."]),
     dict(id="libsamplerate", nome="libsamplerate (Secret Rabbit Code)",
-         script="45-libsamplerate.sh", licenza="BSD-2-Clause", obbligatorio=False,
+         script="45-libsamplerate.sh", licenza="BSD-2-Clause", obbligo="ffmpeg",
          file=["COPYING"], immagine="samplerate", eseguibili=["ffplay.exe"],
          versione=lambda l: _cerca(l, "CMakeLists.txt", r"project\(libsamplerate VERSION ([0-9.]+)"),
          nota="conversione della frequenza dell'audio dentro SDL (solo ffplay.exe)"),
     dict(id="sdl2", nome="SDL 2", script="50-sdl.sh",
-         licenza="Zlib AND BSD-3-Clause AND SunPro AND MIT", obbligatorio=False,
+         licenza="Zlib AND BSD-3-Clause AND SunPro AND MIT", obbligo="ffmpeg",
          file=["LICENSE.txt", "src/hidapi/LICENSE.txt", "src/hidapi/LICENSE-bsd.txt",
                "src/video/yuv2rgb/LICENSE"],
          intestazioni=["src/libm/e_atan2.c", "src/video/khronos/KHR/khrplatform.h"],
@@ -204,7 +204,7 @@ RICETTA = [
     dict(id="mingw-w64-crt", nome="MinGW-w64 runtime (CRT)", script="10-mingw.sh",
          licenza="ZPL-2.1 AND ISC AND BSD-2-Clause AND MIT AND SunPro AND "
                  "LicenseRef-Lucent-gdtoa AND LicenseRef-Cephes AND LicenseRef-Public-Domain AND "
-                 "LGPL-2.1-or-later", obbligatorio=False,
+                 "LGPL-2.1-or-later", obbligo="sistema",
          file=["COPYING.MinGW-w64-runtime/COPYING.MinGW-w64-runtime.txt"],
          versione=_v_mingw, immagine="mingw", cartella="mingw-w64",
          nota="runtime C del compilatore (avvio, matematica, stampa, protezione dello stack)",
@@ -214,10 +214,23 @@ RICETTA = [
                  "più dichiarazioni, costanti e piccole funzioni (LGPL-2.1 sez. 5). Il sorgente",
                  "completo di mingw-w64 è comunque nell'archivio del sorgente."]),
     dict(id="winpthreads", nome="winpthreads (MinGW-w64)", script="10-mingw.sh",
-         licenza="MIT AND BSD-3-Clause", obbligatorio=False,
+         licenza="MIT AND BSD-3-Clause", obbligo="sistema",
          file=["mingw-w64-libraries/winpthreads/COPYING"], versione=_v_mingw, immagine="mingw",
          stesso_sorgente="mingw-w64-crt", nota="thread POSIX per Windows (usati da libstdc++)"),
 ]
+
+# Perche' il sorgente e' obbligatorio (o no). FFmpeg qui e' LGPL-3.0, cioe' GPL-3.0 con
+# permessi in piu': per la GPL-3.0 (sez. 1 e 6) il sorgente corrispondente di un eseguibile
+# comprende tutto cio' che ci e' collegato, tranne le "librerie di sistema" (fra cui quelle
+# che accompagnano il compilatore). Le librerie "ffmpeg" non lo chiederebbero da sole.
+MOTIVI = {
+    "propria": "obbligatorio: la sua licenza (LGPL-2.1-or-later, collegata in modo statico) e la "
+               "LGPL-3.0 di FFmpeg",
+    "ffmpeg": "obbligatorio: fa parte del sorgente corrispondente degli eseguibili di FFmpeg "
+              "(LGPL-3.0, cioè GPL-3.0 sez. 1 e 6), anche se la sua licenza da sola non lo chiede",
+    "sistema": "non obbligatorio: libreria di sistema del compilatore (GPL-3.0 sez. 1); il "
+               "sorgente è comunque nell'archivio",
+}
 
 GCC = dict(id="gcc-runtime", nome="Librerie di supporto di GCC (libgcc, libstdc++)",
            licenza="GPL-3.0-or-later WITH GCC-exception-3.1",
@@ -603,7 +616,9 @@ def scrivi_licenze(a, uscita: Path, info: dict, repos: dict, gcc: dict, eseguibi
         ff, versione_ff or "", commit_ff, "https://github.com/FFmpeg/FFmpeg.git", TUTTI, blocchi))
     elenco.append(dict(id="ffmpeg", nome=ff["nome"], versione=versione_ff or None, commit=commit_ff,
                        origine="https://github.com/FFmpeg/FFmpeg.git", licenza=ff["licenza"],
-                       testo=f"{pref}ffmpeg.txt", sorgente_obbligatorio=True, eseguibili=TUTTI,
+                       testo=f"{pref}ffmpeg.txt", sorgente_obbligatorio=True,
+                       motivo_sorgente="obbligatorio: licenza di FFmpeg (LGPL-3.0-or-later)",
+                       eseguibili=TUTTI,
                        nota="commit del ramo release/8.1 a cui compila.sh aggiunge il decoder "
                             "aac_mf; sorgente in ffmpeg-sorgente.tar.gz della stessa release"))
 
@@ -624,7 +639,8 @@ def scrivi_licenze(a, uscita: Path, info: dict, repos: dict, gcc: dict, eseguibi
         elenco.append(dict(
             id=voce["id"], nome=voce["nome"], versione=i["versione"], commit=i["commit"],
             origine=i["origine"], licenza=voce["licenza"], testo=f"{pref}{voce['id']}.txt",
-            sorgente_obbligatorio=voce["obbligatorio"], eseguibili=eseg, nota=voce["nota"],
+            sorgente_obbligatorio=voce["obbligo"] != "sistema",
+            motivo_sorgente=MOTIVI[voce["obbligo"]], eseguibili=eseg, nota=voce["nota"],
             data_commit=i["data"], script_ffmpeg_builds=f"scripts.d/{i['script']}",
             parti=[dict(nome=p["nome"], percorso=p["percorso"], commit=p["commit"],
                         origine=p["origine"], nota=p.get("nota", "")) for p in i["parti"]]))
@@ -638,16 +654,21 @@ def scrivi_licenze(a, uscita: Path, info: dict, repos: dict, gcc: dict, eseguibi
     elenco.append(dict(id=GCC["id"], nome=GCC["nome"], versione=gcc["versione"],
                        commit=gcc["commit"], origine="https://gcc.gnu.org/git/gcc.git",
                        licenza=GCC["licenza"], testo=f"{pref}gcc-runtime.txt",
-                       sorgente_obbligatorio=False, eseguibili=TUTTI,
+                       sorgente_obbligatorio=False,
+                       motivo_sorgente="non obbligatorio: libreria di sistema del compilatore "
+                                       "(GPL-3.0 sez. 1) e GCC Runtime Library Exception 3.1",
+                       eseguibili=TUTTI,
                        nota=f"tag releases/gcc-{gcc['versione']}; compilatore crosstool-NG con "
-                            f"binutils {gcc['binutils']}; eccezione del runtime: niente obblighi "
-                            f"sul sorgente"))
+                            f"binutils {gcc['binutils']}; sorgente su https://gcc.gnu.org"))
     scrivi_testo(testi / "unicode.txt", testo_licenza(
         UNICODE, "", None, "https://www.unicode.org/ucd/", TUTTI,
         [("Unicode License V3", (fissi / "unicode-license-v3.txt").read_text(encoding="utf-8"))]))
     elenco.append(dict(id=UNICODE["id"], nome=UNICODE["nome"], versione=None, commit=None,
                        origine="https://www.unicode.org/ucd/", licenza=UNICODE["licenza"],
-                       testo=f"{pref}unicode.txt", sorgente_obbligatorio=False, eseguibili=TUTTI,
+                       testo=f"{pref}unicode.txt", sorgente_obbligatorio=False,
+                       motivo_sorgente="non obbligatorio a parte: i dati sono già nel sorgente "
+                                       "delle librerie",
+                       eseguibili=TUTTI,
                        nota="dati compilati dentro FriBidi, HarfBuzz, libunibreak, libxml2 e "
                             "Fontconfig"))
     for v in elenco:

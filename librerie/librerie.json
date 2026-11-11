@@ -8,6 +8,7 @@
     "licenza": "LGPL-3.0-or-later",
     "testo": "ffmpeg.txt",
     "sorgente_obbligatorio": true,
+    "motivo_sorgente": "obbligatorio: licenza di FFmpeg (LGPL-3.0-or-later)",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
@@ -24,7 +25,8 @@
     "origine": "https://github.com/madler/zlib.git",
     "licenza": "Zlib",
     "testo": "zlib.txt",
-    "sorgente_obbligatorio": false,
+    "sorgente_obbligatorio": true,
+    "motivo_sorgente": "obbligatorio: fa parte del sorgente corrispondente degli eseguibili di FFmpeg (LGPL-3.0, cioè GPL-3.0 sez. 1 e 6), anche se la sua licenza da sola non lo chiede",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
@@ -45,6 +47,7 @@
     "licenza": "LGPL-2.1-or-later",
     "testo": "fribidi.txt",
     "sorgente_obbligatorio": true,
+    "motivo_sorgente": "obbligatorio: la sua licenza (LGPL-2.1-or-later, collegata in modo statico) e la LGPL-3.0 di FFmpeg",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
@@ -65,6 +68,7 @@
     "licenza": "LGPL-2.1-or-later",
     "testo": "libiconv.txt",
     "sorgente_obbligatorio": true,
+    "motivo_sorgente": "obbligatorio: la sua licenza (LGPL-2.1-or-later, collegata in modo statico) e la LGPL-3.0 di FFmpeg",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
@@ -92,7 +96,8 @@
     "origine": "https://github.com/GNOME/libxml2.git",
     "licenza": "MIT AND ISC-Veillard",
     "testo": "libxml2.txt",
-    "sorgente_obbligatorio": false,
+    "sorgente_obbligatorio": true,
+    "motivo_sorgente": "obbligatorio: fa parte del sorgente corrispondente degli eseguibili di FFmpeg (LGPL-3.0, cioè GPL-3.0 sez. 1 e 6), anche se la sua licenza da sola non lo chiede",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
@@ -112,7 +117,8 @@
     "origine": "https://gitlab.freedesktop.org/freetype/freetype.git",
     "licenza": "FTL AND MIT AND Zlib AND MIT-Modern-Variant",
     "testo": "freetype.txt",
-    "sorgente_obbligatorio": false,
+    "sorgente_obbligatorio": true,
+    "motivo_sorgente": "obbligatorio: fa parte del sorgente corrispondente degli eseguibili di FFmpeg (LGPL-3.0, cioè GPL-3.0 sez. 1 e 6), anche se la sua licenza da sola non lo chiede",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
@@ -140,7 +146,8 @@
     "origine": "https://gitlab.freedesktop.org/fontconfig/fontconfig.git",
     "licenza": "HPND-sell-variant AND MIT-Modern-Variant AND MIT AND Unicode-3.0 AND LicenseRef-Public-Domain",
     "testo": "fontconfig.txt",
-    "sorgente_obbligatorio": false,
+    "sorgente_obbligatorio": true,
+    "motivo_sorgente": "obbligatorio: fa parte del sorgente corrispondente degli eseguibili di FFmpeg (LGPL-3.0, cioè GPL-3.0 sez. 1 e 6), anche se la sua licenza da sola non lo chiede",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
@@ -160,7 +167,8 @@
     "origine": "https://github.com/harfbuzz/harfbuzz.git",
     "licenza": "MIT-Modern-Variant AND MIT AND ISC AND Unicode-3.0",
     "testo": "harfbuzz.txt",
-    "sorgente_obbligatorio": false,
+    "sorgente_obbligatorio": true,
+    "motivo_sorgente": "obbligatorio: fa parte del sorgente corrispondente degli eseguibili di FFmpeg (LGPL-3.0, cioè GPL-3.0 sez. 1 e 6), anche se la sua licenza da sola non lo chiede",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
@@ -180,7 +188,8 @@
     "origine": "https://github.com/adah1972/libunibreak.git",
     "licenza": "Zlib",
     "testo": "libunibreak.txt",
-    "sorgente_obbligatorio": false,
+    "sorgente_obbligatorio": true,
+    "motivo_sorgente": "obbligatorio: fa parte del sorgente corrispondente degli eseguibili di FFmpeg (LGPL-3.0, cioè GPL-3.0 sez. 1 e 6), anche se la sua licenza da sola non lo chiede",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
@@ -200,7 +209,8 @@
     "origine": "https://github.com/libass/libass.git",
     "licenza": "ISC AND HPND-UC AND Unlicense",
     "testo": "libass.txt",
-    "sorgente_obbligatorio": false,
+    "sorgente_obbligatorio": true,
+    "motivo_sorgente": "obbligatorio: fa parte del sorgente corrispondente degli eseguibili di FFmpeg (LGPL-3.0, cioè GPL-3.0 sez. 1 e 6), anche se la sua licenza da sola non lo chiede",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
@@ -220,7 +230,8 @@
     "origine": "https://github.com/sekrit-twc/zimg.git",
     "licenza": "WTFPL",
     "testo": "zimg.txt",
-    "sorgente_obbligatorio": false,
+    "sorgente_obbligatorio": true,
+    "motivo_sorgente": "obbligatorio: fa parte del sorgente corrispondente degli eseguibili di FFmpeg (LGPL-3.0, cioè GPL-3.0 sez. 1 e 6), anche se la sua licenza da sola non lo chiede",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
@@ -248,7 +259,8 @@
     "origine": "https://code.videolan.org/videolan/dav1d.git",
     "licenza": "BSD-2-Clause AND ISC",
     "testo": "dav1d.txt",
-    "sorgente_obbligatorio": false,
+    "sorgente_obbligatorio": true,
+    "motivo_sorgente": "obbligatorio: fa parte del sorgente corrispondente degli eseguibili di FFmpeg (LGPL-3.0, cioè GPL-3.0 sez. 1 e 6), anche se la sua licenza da sola non lo chiede",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
@@ -268,7 +280,8 @@
     "origine": "https://github.com/libsndfile/libsamplerate.git",
     "licenza": "BSD-2-Clause",
     "testo": "libsamplerate.txt",
-    "sorgente_obbligatorio": false,
+    "sorgente_obbligatorio": true,
+    "motivo_sorgente": "obbligatorio: fa parte del sorgente corrispondente degli eseguibili di FFmpeg (LGPL-3.0, cioè GPL-3.0 sez. 1 e 6), anche se la sua licenza da sola non lo chiede",
     "eseguibili": [
       "ffplay.exe"
     ],
@@ -286,7 +299,8 @@
     "origine": "https://github.com/libsdl-org/SDL.git",
     "licenza": "Zlib AND BSD-3-Clause AND SunPro AND MIT",
     "testo": "sdl2.txt",
-    "sorgente_obbligatorio": false,
+    "sorgente_obbligatorio": true,
+    "motivo_sorgente": "obbligatorio: fa parte del sorgente corrispondente degli eseguibili di FFmpeg (LGPL-3.0, cioè GPL-3.0 sez. 1 e 6), anche se la sua licenza da sola non lo chiede",
     "eseguibili": [
       "ffplay.exe"
     ],
@@ -305,6 +319,7 @@
     "licenza": "ZPL-2.1 AND ISC AND BSD-2-Clause AND MIT AND SunPro AND LicenseRef-Lucent-gdtoa AND LicenseRef-Cephes AND LicenseRef-Public-Domain AND LGPL-2.1-or-later",
     "testo": "mingw-w64-crt.txt",
     "sorgente_obbligatorio": false,
+    "motivo_sorgente": "non obbligatorio: libreria di sistema del compilatore (GPL-3.0 sez. 1); il sorgente è comunque nell'archivio",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
@@ -325,6 +340,7 @@
     "licenza": "MIT AND BSD-3-Clause",
     "testo": "winpthreads.txt",
     "sorgente_obbligatorio": false,
+    "motivo_sorgente": "non obbligatorio: libreria di sistema del compilatore (GPL-3.0 sez. 1); il sorgente è comunque nell'archivio",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
@@ -345,12 +361,13 @@
     "licenza": "GPL-3.0-or-later WITH GCC-exception-3.1",
     "testo": "gcc-runtime.txt",
     "sorgente_obbligatorio": false,
+    "motivo_sorgente": "non obbligatorio: libreria di sistema del compilatore (GPL-3.0 sez. 1) e GCC Runtime Library Exception 3.1",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
       "ffplay.exe"
     ],
-    "nota": "tag releases/gcc-16.2.0; compilatore crosstool-NG con binutils 2.47; eccezione del runtime: niente obblighi sul sorgente",
+    "nota": "tag releases/gcc-16.2.0; compilatore crosstool-NG con binutils 2.47; sorgente su https://gcc.gnu.org",
     "release": "v8.1-1"
   },
   {
@@ -362,6 +379,7 @@
     "licenza": "Unicode-3.0",
     "testo": "unicode.txt",
     "sorgente_obbligatorio": false,
+    "motivo_sorgente": "non obbligatorio a parte: i dati sono già nel sorgente delle librerie",
     "eseguibili": [
       "ffmpeg.exe",
       "ffprobe.exe",
