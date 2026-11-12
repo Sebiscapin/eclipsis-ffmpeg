@@ -123,7 +123,7 @@ RICETTA = [
     dict(id="libiconv", nome="GNU libiconv", script="20-libiconv.sh",
          licenza="LGPL-2.1-or-later", obbligo="propria", file=["COPYING.LIB"],
          copyright_da=["lib/", "libcharset/lib/"], versione=_v_libiconv, immagine="libiconv",
-         nota="conversione delle codifiche (libass, libxml2, Fontconfig, SDL)",
+         nota="conversione delle codifiche (libass, libxml2, Fontconfig e, in ffplay.exe, SDL)",
          parti=[dict(nome="gnulib", percorso="gnulib", var="SCRIPT_REPO2", mirror="SCRIPT_MIRROR2",
                      commit="SCRIPT_COMMIT2",
                      nota="usata da autogen.sh per preparare la compilazione")],

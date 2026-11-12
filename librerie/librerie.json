@@ -87,7 +87,7 @@
       "ffprobe.exe",
       "ffplay.exe"
     ],
-    "nota": "conversione delle codifiche (libass, libxml2, Fontconfig, SDL)",
+    "nota": "conversione delle codifiche (libass, libxml2, Fontconfig e, in ffplay.exe, SDL)",
     "data_commit": "2026-10-21T08:40:38+02:00",
     "script_ffmpeg_builds": "scripts.d/20-libiconv.sh",
     "parti": [
