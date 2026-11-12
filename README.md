@@ -20,6 +20,12 @@ successiva** ([COPYING.LGPLv3](COPYING.LGPLv3), che rimanda alla
   Windows (Media Foundation, `msauddecmft.dll`). Lo script
   [sorgenti/aggiungi_decoder_aac_mf.sh](sorgenti/aggiungi_decoder_aac_mf.sh) lo aggiunge al
   sorgente di FFmpeg prima della compilazione.
+- **Decodifica H.264 con Windows** (dall'11 novembre 2026): anche il decoder H.264 di FFmpeg è
+  escluso. Al suo posto c'è `h264_mf` ([sorgenti/mfvdec.c](sorgenti/mfvdec.c)), che passa il
+  video al decoder H.264 di Windows (Media Foundation, `msmpeg2vdec.dll`), con un thread per
+  core. Legge l'H.264 a 8 bit 4:2:0 (quello dei telefoni); i file a 10 bit, 4:2:2 o 4:4:4 non
+  si aprono. Lo script [sorgenti/aggiungi_decoder_h264_mf.sh](sorgenti/aggiungi_decoder_h264_mf.sh)
+  lo aggiunge dopo `aac_mf`.
 - **Codificatori**: solo quelli che il programma usa. H.264 e AAC sono quelli di Windows
   (`h264_mf`, `aac_mf`), quindi nessun codificatore H.264 o AAC è compilato negli eseguibili.
 - **Opzioni di compilazione**: tutte in [configurazione.txt](configurazione.txt).
@@ -75,9 +81,10 @@ contains the FFmpeg build recipe; Eclipsis' own code is not here. The build is c
 with `--enable-version3`, so the executables are distributed under the GNU LGPL version 3
 or later (COPYING.LGPLv3, together with COPYING.GPLv3); it contains no GPL-only or nonfree
 parts. Every modified FFmpeg file carries an "Eclipsis" notice and each release includes
-MODIFICHE_ECLIPSIS.txt describing the changes (12 and 13 October 2026). AAC is decoded by
-the AAC decoder that ships with Windows (Media Foundation) through the `aac_mf` decoder in
-`sorgenti/mfdec.c`; FFmpeg's own AAC decoder and all unused encoders are disabled. Every
+MODIFICHE_ECLIPSIS.txt describing the changes (October and November 2026). AAC and H.264
+are decoded by the decoders that ship with Windows (Media Foundation) through the `aac_mf`
+and `h264_mf` decoders in `sorgenti/mfdec.c` and `sorgenti/mfvdec.c`; FFmpeg's own AAC and
+H.264 decoders and all unused encoders are disabled. Every
 release includes the complete corresponding source: `ffmpeg-sorgente.tar.gz` (FFmpeg as
 built) and `librerie-sorgente.tar` (every statically linked library, FriBidi and libiconv
 included, at the exact commit, with the FFmpeg-Builds scripts that built them). The

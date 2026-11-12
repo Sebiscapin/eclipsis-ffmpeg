@@ -694,7 +694,7 @@ Contenuto / Contents
   (scripts.d), la configurazione del compilatore (images/base-win64/ct-ng-config) e
   dell'immagine Docker.
 - script/eclipsis-ffmpeg-<commit>.tar.xz: il repository eclipsis-ffmpeg al commit della
-  release (compila.sh, configurazione.txt, il decoder aac_mf).
+  release (compila.sh, configurazione.txt, i decoder aac_mf e h264_mf).
 - licenze/: la licenza di ogni componente, con gli avvisi; licenze/librerie.json.
 - MANIFEST.json: componenti, versioni, commit, licenze e impronte SHA-256 degli archivi.
 - SHA256SUMS.txt: impronte di tutti i file.
@@ -755,7 +755,7 @@ def scrivi_licenze(a, uscita: Path, info: dict, repos: dict, gcc: dict, eseguibi
         blocchi.insert(0, ("MODIFICHE_ECLIPSIS.txt", a.modifiche.read_text(encoding="utf-8")))
     ff = dict(nome="FFmpeg (libavcodec, libavformat, libavfilter, libavutil, libswscale, "
                    "libswresample, libavdevice)", licenza="LGPL-3.0-or-later",
-              avvisi=["Ramo release/8.1 con il decoder aac_mf di Eclipsis (vedi",
+              avvisi=["Ramo release/8.1 con i decoder aac_mf e h264_mf di Eclipsis (vedi",
                       "MODIFICHE_ECLIPSIS.txt). Configurato con --enable-version3: LGPL",
                       "versione 3 o successiva, che rimanda alla GPL versione 3. Il sorgente",
                       "corrispondente è ffmpeg-sorgente.tar.gz della stessa release."])
@@ -766,8 +766,8 @@ def scrivi_licenze(a, uscita: Path, info: dict, repos: dict, gcc: dict, eseguibi
                    testo=f"{pref}ffmpeg.txt", sorgente_obbligatorio=True,
                    motivo_sorgente="obbligatorio: licenza di FFmpeg (LGPL-3.0-or-later)",
                    eseguibili=TUTTI,
-                   nota="commit del ramo release/8.1 a cui compila.sh aggiunge il decoder "
-                        "aac_mf; sorgente in ffmpeg-sorgente.tar.gz della stessa release")
+                   nota="commit del ramo release/8.1 a cui compila.sh aggiunge i decoder "
+                        "aac_mf e h264_mf; sorgente in ffmpeg-sorgente.tar.gz della stessa release")
     if a.ffmpeg_compilati:
         # gli avvisi dei file di FFmpeg compilati con licenze diverse dalla LGPL
         leggi = lettore_sorgente(a.sorgente_ffmpeg, commit_ff)
