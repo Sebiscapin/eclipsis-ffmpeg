@@ -35,6 +35,9 @@
  * with the same time (FF_CODEC_CAP_SETS_FRAME_PROPS); the dts are handed out in
  * decode order, one per picture, so that they always grow.
  *
+ * After the start, a flush or an error, the packets before the first key frame stay
+ * out: the native decoder shows none of their pictures either.
+ *
  * The output is I420, that is yuv420p (NV12 is converted if it is the only
  * choice), cropped to the display aperture; the MFT wants a new output sample
  * for every picture. Range, matrix, primaries, transfer, chroma location,
@@ -122,6 +125,7 @@ MFVDEC_FOURCC_GUID(mfvdec_Format_NV12, 0x3231564e);    // 'NV12'
 #define MAX_STREAM_CHANGES 4    ///< output format changes accepted in a row
 #define MAX_PENDING        128  ///< packets given to the MFT, not yet out as pictures
 #define MAX_REFUSALS       8    ///< ProcessInput refusals in a row
+#define MAX_WAIT_KEY       600  ///< packets left out while waiting for a key frame
 #define SPS_MAX_SIZE       2048
 #define NO_TIME            INT64_MIN
 // The first sample time after a start or a flush: room for the earlier times
@@ -143,6 +147,7 @@ typedef struct MFVDecSPS {
     int reorder;                       ///< max_num_reorder_frames, -1 if absent
     int profile, level;
     int chroma_format, bit_depth;
+    int coded_width, coded_height;     ///< whole macroblocks, before cropping
 } MFVDecSPS;
 
 typedef struct MFVDecPending {
@@ -173,6 +178,9 @@ typedef struct MFVDecContext {
 
     int draining;
     int discontinuity;                 ///< the next sample follows a flush
+    int input_first;                   ///< after an error: a packet before the next picture
+    int wait_key;                      ///< after the start or a flush: up to the first key frame
+    int waited;                        ///< packets left out meanwhile
     int have_offset;
     int64_t time_offset;
     int refused;
@@ -331,6 +339,7 @@ static int mfvdec_parse_sps(const uint8_t *rbsp, int size, MFVDecSPS *s)
 {
     MFVDecBits b = { rbsp, 8 * (int64_t)size, 0 };
     unsigned profile, constraints, level, chroma = 1, depth = 8, poc_type;
+    unsigned mb_width, map_height, frame_mbs_only;
 
     memset(s, 0, sizeof(*s));
     s->reorder = -1;
@@ -376,9 +385,10 @@ static int mfvdec_parse_sps(const uint8_t *rbsp, int size, MFVDecSPS *s)
     }
     mfvdec_ue(&b);                           // max_num_ref_frames
     mfvdec_bits(&b, 1);                      // gaps_in_frame_num_value_allowed_flag
-    mfvdec_ue(&b);                           // pic_width_in_mbs_minus1
-    mfvdec_ue(&b);                           // pic_height_in_map_units_minus1
-    if (!mfvdec_bits(&b, 1))                 // frame_mbs_only_flag
+    mb_width       = mfvdec_ue(&b) + 1;      // pic_width_in_mbs_minus1
+    map_height     = mfvdec_ue(&b) + 1;      // pic_height_in_map_units_minus1
+    frame_mbs_only = mfvdec_bits(&b, 1);     // frame_mbs_only_flag
+    if (!frame_mbs_only)
         mfvdec_bits(&b, 1);
     mfvdec_bits(&b, 1);                      // direct_8x8_inference_flag
     if (mfvdec_bits(&b, 1))                  // frame_cropping_flag
@@ -396,6 +406,11 @@ static int mfvdec_parse_sps(const uint8_t *rbsp, int size, MFVDecSPS *s)
     s->level         = level;
     s->chroma_format = chroma;
     s->bit_depth     = depth;
+    // h->width and h->height of the native decoder, its coded_width and coded_height
+    if (mb_width <= 1024 && map_height <= 1024) {
+        s->coded_width  = 16 * mb_width;
+        s->coded_height = 16 * map_height * (2 - frame_mbs_only);
+    }
     s->chroma_loc    = AVCHROMA_LOC_UNSPECIFIED;
     if (mfvdec_bits(&b, 1))                  // vui_parameters_present_flag
         mfvdec_parse_vui(&b, s);
@@ -456,6 +471,23 @@ static void mfvdec_find_sps(AVCodecContext *avctx, const uint8_t *buf, int size)
         if (type >= 1 && type <= 5)
             return;
     }
+}
+
+// An IDR picture in some Annex B data (for packets without the key flag).
+static int mfvdec_has_idr(const uint8_t *buf, int size)
+{
+    const uint8_t *end = buf + size;
+
+    for (const uint8_t *p = buf; p + 3 < end; p++) {
+        int type;
+        if (p[0] || p[1] || p[2] != 1)
+            continue;
+        p   += 3;
+        type = p[0] & 0x1F;
+        if (type >= 1 && type <= 5)
+            return type == 5;
+    }
+    return 0;
 }
 
 static void mfvdec_sps_from_extradata(AVCodecContext *avctx)
@@ -550,6 +582,12 @@ static void mfvdec_apply_sps(AVCodecContext *avctx, const MFVDecSPS *s)
             avctx->has_b_frames = s->reorder;
         avctx->profile = s->profile;
         avctx->level   = s->level;
+        // whole macroblocks, as the native decoder (ffprobe shows 1920x1088 for 1080p);
+        // ff_get_buffer() makes the buffers that big, the pictures stay cropped
+        if (s->coded_width > 0 && s->coded_height > 0) {
+            avctx->coded_width  = s->coded_width;
+            avctx->coded_height = s->coded_height;
+        }
     } else {
         // No sequence parameter set read: what the output type says, if anything.
         const MFVDecSPS *t = &c->mf_colour;
@@ -755,10 +793,10 @@ static int mfvdec_read_output_type(AVCodecContext *avctx)
                                AV_PIX_FMT_NONE, 0, avctx);
     if (ret < 0)
         return ret;
-    // coded_width and coded_height as the native decoder reports them (ffprobe shows
-    // 1920x1080, not the 1088 lines decoded)
-    avctx->coded_width  = c->crop_w;
-    avctx->coded_height = c->crop_h;
+    // the decoded size, before cropping (1920x1088 for 1080p), as the native decoder;
+    // mfvdec_apply_sps() takes it from the sequence parameter set when it has one
+    avctx->coded_width  = w;
+    avctx->coded_height = h;
     avctx->width        = c->crop_w;
     avctx->height       = c->crop_h;
     av_log(avctx, AV_LOG_VERBOSE, "output: %s %ux%u (pitch %d), picture %dx%d at %d,%d\n",
@@ -826,6 +864,9 @@ static av_cold int mfvdec_init(AVCodecContext *avctx)
     if (!c->pkt)
         return AVERROR(ENOMEM);
     c->sps.reorder = -1;
+    // the first samples as after a flush
+    c->discontinuity = 1;
+    c->wait_key      = 1;
 
     // The stream properties before the first picture, as the native decoder has them.
     mfvdec_sps_from_extradata(avctx);
@@ -1086,6 +1127,19 @@ end:
     return ret;
 }
 
+// Starts again from the next packets (the pictures in flight are lost). For the
+// errors that consume nothing: ffmpeg goes on after a decoding error, and the same
+// error would come back at every call, with one core busy for ever.
+static void mfvdec_restart(MFVDecContext *c)
+{
+    IMFTransform_ProcessMessage(c->mft, MFT_MESSAGE_COMMAND_FLUSH, 0);
+    mfvdec_drop_all_pending(c);
+    c->discontinuity = 1;
+    c->input_first   = 1;
+    c->wait_key      = 1;
+    c->waited        = 0;
+}
+
 static int mfvdec_receive_output(AVCodecContext *avctx, AVFrame *frame)
 {
     MFVDecContext *c = avctx->priv_data;
@@ -1119,21 +1173,22 @@ static int mfvdec_receive_output(AVCodecContext *avctx, AVFrame *frame)
                 return AVERROR(EAGAIN);
             if ((hr == MF_E_TRANSFORM_STREAM_CHANGE || hr == MF_E_TRANSFORM_TYPE_NOT_SET) &&
                 ++stream_changes <= MAX_STREAM_CHANGES) {
-                if ((ret = mfvdec_set_output_type(avctx)) < 0)
+                if ((ret = mfvdec_set_output_type(avctx)) < 0) {
+                    mfvdec_restart(c);
                     return ret;
+                }
                 continue;
             }
-            // Start again from the next packets (the pictures in flight are lost),
-            // or every call would fail the same way.
             av_log(avctx, AV_LOG_ERROR, "failed processing output: %s\n", ff_hr_str(hr));
-            IMFTransform_ProcessMessage(c->mft, MFT_MESSAGE_COMMAND_FLUSH, 0);
-            mfvdec_drop_all_pending(c);
-            c->discontinuity = 1;
+            mfvdec_restart(c);
             return AVERROR_INVALIDDATA;
         }
         if (!out.pSample) {
-            if (++empty > MAX_STREAM_CHANGES)
+            if (++empty > MAX_STREAM_CHANGES) {
+                av_log(avctx, AV_LOG_ERROR, "the decoder gives no pictures\n");
+                mfvdec_restart(c);
                 return AVERROR_EXTERNAL;
+            }
             continue;
         }
 
@@ -1152,9 +1207,14 @@ static int mfvdec_receive_frame(AVCodecContext *avctx, AVFrame *frame)
     int ret;
 
     for (;;) {
-        ret = mfvdec_receive_output(avctx, frame);
-        if (ret != AVERROR(EAGAIN))
-            return ret;
+        // After an error that has started again (mfvdec_restart()), a packet first:
+        // every error takes at least one packet, so a failure that stays (an output
+        // type the MFT keeps refusing) ends with the stream, not in an endless loop.
+        if (!c->input_first) {
+            ret = mfvdec_receive_output(avctx, frame);
+            if (ret != AVERROR(EAGAIN))
+                return ret;
+        }
         if (c->draining)
             return AVERROR_EOF;
 
@@ -1177,9 +1237,32 @@ static int mfvdec_receive_frame(AVCodecContext *avctx, AVFrame *frame)
                 av_packet_unref(c->pkt);
                 continue;
             }
+            // After the start or a flush the packets before the first key frame stay
+            // out (ffmpeg starts in the middle of a GOP after -ss in MPEG-TS). The
+            // native decoder shows none of their pictures, and the MFT, which cannot
+            // decode them either, would give the time of the first one to the key
+            // frame: -ss would then cut the key frame.
+            if (c->wait_key) {
+                if (!(c->pkt->flags & AV_PKT_FLAG_KEY) &&
+                    !mfvdec_has_idr(c->pkt->data, c->pkt->size) && ++c->waited <= MAX_WAIT_KEY) {
+                    av_packet_unref(c->pkt);
+                    continue;
+                }
+                if (c->waited)
+                    av_log(avctx, AV_LOG_DEBUG, "%d packets before the first key frame "
+                           "left out\n", FFMIN(c->waited, MAX_WAIT_KEY));
+                c->wait_key = 0;
+                c->waited   = 0;
+            }
         }
 
         ret = mfvdec_send_packet(avctx, c->pkt);
+        if (ret == AVERROR(EAGAIN) && c->input_first) {
+            // It wants to give pictures first.
+            c->input_first = 0;
+            continue;
+        }
+        c->input_first = 0;
         if (ret == AVERROR(EAGAIN)) {
             // It has just said it has no output, yet it takes no input.
             if (++c->refused <= MAX_REFUSALS)
@@ -1206,6 +1289,9 @@ static av_cold void mfvdec_flush(AVCodecContext *avctx)
     c->refused       = 0;
     c->have_offset   = 0;
     c->discontinuity = 1;
+    c->input_first   = 0;
+    c->wait_key      = 1;
+    c->waited        = 0;
     av_packet_unref(c->pkt);
     mfvdec_drop_all_pending(c);
 }

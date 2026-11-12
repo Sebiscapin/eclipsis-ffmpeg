@@ -2,6 +2,7 @@
 quello di Eclipsis (decoder H.264 di Windows, h264_mf). Per ogni file:
 - framemd5 di tutti i fotogrammi: stessi tempi, durate e impronte (devono essere identici);
 - framemd5 dopo una ricerca (-ss), salvo i flussi grezzi .h264 (li' la ricerca e' per byte);
+- su hd.mp4 (B-frame) anche framemd5 con -threads 1, che porta h264_mf alla bassa latenza;
 - i campi di ffprobe: dimensioni, formato dei pixel e colore devono tornare, gli altri campi
   diversi diventano avvisi da guardare.
 Solo libreria standard di Python. ffprobe si cerca accanto a ciascun ffmpeg.
@@ -41,13 +42,16 @@ def esegui(comando):
     return uscita.stdout.decode(errors="replace")
 
 
-def framemd5(ffmpeg, percorso, decoder=None, ss=None):
+def framemd5(ffmpeg, percorso, decoder=None, ss=None, thread=None):
     """Righe (stream, dts, pts, durata, dimensione, impronta) del framemd5, senza le
     intestazioni. -noautoscale: un cambio di dimensioni resta tale e quale (-autoscale e'
-    un'opzione booleana: "-autoscale 0" prenderebbe lo 0 come file d'uscita)."""
+    un'opzione booleana: "-autoscale 0" prenderebbe lo 0 come file d'uscita). thread: i
+    thread del decoder (-threads prima di -i)."""
     comando = [ffmpeg, "-hide_banner", "-nostats", "-v", "error"]
     if ss is not None:
         comando += ["-ss", str(ss)]
+    if thread is not None:
+        comando += ["-threads", str(thread)]
     if decoder:
         comando += ["-c:v", decoder]
     comando += ["-i", percorso, "-map", "0:v:0", "-noautoscale"]
@@ -94,13 +98,15 @@ def main():
     errori = 0
     for percorso in file_prova:
         nome = os.path.basename(percorso)
-        prove = [("tutto", None)]
+        prove = [("tutto", None, None)]
         if not nome.lower().endswith((".h264", ".264")):
-            prove.append((f"da {ss} s", ss))
-        for cosa, inizio in prove:
+            prove.append((f"da {ss} s", ss, None))
+        if nome.lower() == "hd.mp4":
+            prove.append(("tutto, -threads 1", None, 1))
+        for cosa, inizio, thread in prove:
             try:
-                a = framemd5(ufficiale, percorso, ss=inizio)
-                b = framemd5(eclipsis, percorso, "h264_mf", ss=inizio)
+                a = framemd5(ufficiale, percorso, ss=inizio, thread=thread)
+                b = framemd5(eclipsis, percorso, "h264_mf", ss=inizio, thread=thread)
             except (RuntimeError, OSError, ValueError) as errore:
                 errori += 1
                 print(f"ERRORE   {nome} ({cosa}): {errore}", flush=True)

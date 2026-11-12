@@ -157,11 +157,16 @@ jobs:
           # le opzioni di ffprobe vanno a ffprobe (accanto all'ffmpeg ufficiale), non a ffmpeg
           $probe = Join-Path (Split-Path $env:UFFICIALE) 'ffprobe.exe'
           & $probe -v error -select_streams v:0 -show_entries stream=has_b_frames,profile -of compact prova_h264\hd.mp4
+          $ritardo = & $probe -v error -select_streams v:0 -show_entries stream=has_b_frames -of csv=p=0 prova_h264\hd.mp4
           # senza B-frame o senza gamma piena il confronto non proverebbe il riordino e yuvj420p
           $b = @(& $probe -v error -select_streams v:0 -show_entries frame=pict_type -of csv=p=0 prova_h264\hd.mp4 | Where-Object { $_ -like 'B*' }).Count
           $gamma = & $probe -v error -select_streams v:0 -read_intervals "%+#1" -show_entries frame=pix_fmt,color_range -of csv=p=0 prova_h264\piena.mp4
-          "B-frame in hd.mp4: $b; primo fotogramma di piena.mp4: $gamma"
-          if ($b -eq 0) { "::warning title=file di prova H.264::hd.mp4 senza B-frame: il riordino non si prova" }
+          "B-frame in hd.mp4: $b (has_b_frames $ritardo); primo fotogramma di piena.mp4: $gamma"
+          # senza B-frame il confronto passerebbe senza aver provato il riordino: la prova fallisce
+          if ($b -eq 0 -or [int]("$ritardo".Trim()) -le 0) {
+            "::error title=file di prova H.264::hd.mp4 senza B-frame ($b B-frame, has_b_frames $ritardo): il riordino non si proverebbe"
+            exit 1
+          }
           if ("$gamma" -notmatch 'pc') {
             "::error title=file di prova H.264::piena.mp4 non e' a gamma piena ($gamma)"
             exit 1
