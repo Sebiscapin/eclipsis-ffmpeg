@@ -1,6 +1,6 @@
 zlib 1.3.2.1-motley
 Origine / Source: https://github.com/madler/zlib.git
-Commit: 767c4c947852e143f582c85f14cf573411df1b35
+Commit: 9d314c341b2ce16e01ae44e27ec3dd2f32aa58fd
 Licenza / License (SPDX): Zlib
 Negli eseguibili / In: ffmpeg.exe, ffprobe.exe, ffplay.exe
 

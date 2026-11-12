@@ -1,6 +1,6 @@
 SDL 2 2.33.0
 Origine / Source: https://github.com/libsdl-org/SDL.git
-Commit: b90ac95029d801c5abc59472ba8e2200dff31e1e
+Commit: 8acf7cfc0f88717e5c036f60f0314bfcafe39189
 Licenza / License (SPDX): Zlib AND BSD-3-Clause AND SunPro AND MIT
 Negli eseguibili / In: ffplay.exe
 

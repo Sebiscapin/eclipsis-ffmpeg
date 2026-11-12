@@ -1,6 +1,6 @@
-FreeType 2.14.3
+FreeType 2.15.0
 Origine / Source: https://gitlab.freedesktop.org/freetype/freetype.git
-Commit: d333439633039de426f943f28a2926c7f97b5ae5
+Commit: 4ba7c3d82ab8b3cc80b869337d2c2b1913c5e415
 Licenza / License (SPDX): FTL AND MIT AND Zlib AND MIT-Modern-Variant
 Negli eseguibili / In: ffmpeg.exe, ffprobe.exe, ffplay.exe
 

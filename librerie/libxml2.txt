@@ -1,6 +1,6 @@
 libxml2 2.16.0
 Origine / Source: https://github.com/GNOME/libxml2.git
-Commit: 91586dc6742ab335682235120363f6e126eea5e2
+Commit: c79c9612fcc77b06b0d16f35fd363d938bdbbf5e
 Licenza / License (SPDX): MIT AND ISC-Veillard
 Negli eseguibili / In: ffmpeg.exe, ffprobe.exe, ffplay.exe
 

@@ -1,6 +1,6 @@
 Fontconfig 2.18.3
 Origine / Source: https://gitlab.freedesktop.org/fontconfig/fontconfig.git
-Commit: bd8f7b597de96761750d0365abb49b19d2f8d5c3
+Commit: b25ffeabd15b76f86c0c6736f6df2f1b89858010
 Licenza / License (SPDX): HPND-sell-variant AND MIT-Modern-Variant AND MIT AND Unicode-3.0 AND LicenseRef-Public-Domain
 Negli eseguibili / In: ffmpeg.exe, ffprobe.exe, ffplay.exe
 

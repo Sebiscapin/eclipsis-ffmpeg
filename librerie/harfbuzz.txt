@@ -1,6 +1,6 @@
-HarfBuzz 14.5.0
+HarfBuzz 15.0.0
 Origine / Source: https://github.com/harfbuzz/harfbuzz.git
-Commit: b3bab62307017934dd7f532c52a696fefb12b3ad
+Commit: 75d8ac5d2313842550174eaab0cbaf653c8f2f77
 Licenza / License (SPDX): MIT-Modern-Variant AND MIT AND ISC AND Unicode-3.0
 Negli eseguibili / In: ffmpeg.exe, ffprobe.exe, ffplay.exe
 

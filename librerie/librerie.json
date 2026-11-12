@@ -2,8 +2,8 @@
   {
     "id": "ffmpeg",
     "nome": "FFmpeg (libavcodec, libavformat, libavfilter, libavutil, libswscale, libswresample, libavdevice)",
-    "versione": "n8.1.3-19-gd62c023504-eclipsis",
-    "commit": "46d899d7a02bc63237472cc4897258d5ddf274ac",
+    "versione": "n8.1.3-36-g6cfaa81447-eclipsis",
+    "commit": "f1acb0a2666c78d92688f4c3d2803a132f5590f6",
     "origine": "https://github.com/FFmpeg/FFmpeg.git",
     "licenza": "LGPL-3.0-or-later",
     "testo": "ffmpeg.txt",
@@ -14,7 +14,7 @@
       "ffprobe.exe",
       "ffplay.exe"
     ],
-    "nota": "commit del ramo release/8.1 a cui compila.sh aggiunge il decoder aac_mf; sorgente in ffmpeg-sorgente.tar.gz della stessa release",
+    "nota": "commit del ramo release/8.1 a cui compila.sh aggiunge i decoder aac_mf e h264_mf; sorgente in ffmpeg-sorgente.tar.gz della stessa release",
     "avvisi": "AVVISI_FFMPEG.txt",
     "avvisi_file": 63,
     "avvisi_licenze": [
@@ -28,13 +28,13 @@
       "WTFPL",
       "Zlib"
     ],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "zlib",
     "nome": "zlib",
     "versione": "1.3.2.1-motley",
-    "commit": "767c4c947852e143f582c85f14cf573411df1b35",
+    "commit": "9d314c341b2ce16e01ae44e27ec3dd2f32aa58fd",
     "origine": "https://github.com/madler/zlib.git",
     "licenza": "Zlib",
     "testo": "zlib.txt",
@@ -46,16 +46,16 @@
       "ffplay.exe"
     ],
     "nota": "compressione (PNG, filtri e formati di FFmpeg)",
-    "data_commit": "2026-09-20T20:39:44-07:00",
+    "data_commit": "2026-10-25T10:38:46-07:00",
     "script_ffmpeg_builds": "scripts.d/20-zlib.sh",
     "parti": [],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "fribidi",
     "nome": "GNU FriBidi",
     "versione": "1.0.17",
-    "commit": "4c914a92e94a9fe4f30ae83a1130099841566448",
+    "commit": "d2f3e1f4946e7cef9789e1c3ebdb4a60d4314c7f",
     "origine": "https://github.com/fribidi/fribidi.git",
     "licenza": "LGPL-2.1-or-later",
     "testo": "fribidi.txt",
@@ -67,16 +67,16 @@
       "ffplay.exe"
     ],
     "nota": "testo bidirezionale dei sottotitoli (libass)",
-    "data_commit": "2026-09-21T23:19:13+03:00",
+    "data_commit": "2026-10-15T21:31:49+03:00",
     "script_ffmpeg_builds": "scripts.d/25-fribidi.sh",
     "parti": [],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "libiconv",
     "nome": "GNU libiconv",
     "versione": "1.19",
-    "commit": "1df3087ba8110c7f3ed3eb5f8869b814dbbe00b0",
+    "commit": "b5a1735e02bf43ee6e490fcf9395e8abc8d32432",
     "origine": "https://git.savannah.gnu.org/git/libiconv.git",
     "licenza": "LGPL-2.1-or-later",
     "testo": "libiconv.txt",
@@ -88,24 +88,24 @@
       "ffplay.exe"
     ],
     "nota": "conversione delle codifiche (libass, libxml2, Fontconfig, SDL)",
-    "data_commit": "2026-08-20T17:55:32+02:00",
+    "data_commit": "2026-10-21T08:40:38+02:00",
     "script_ffmpeg_builds": "scripts.d/20-libiconv.sh",
     "parti": [
       {
         "nome": "gnulib",
         "percorso": "gnulib",
-        "commit": "eb72eb6f75f5621c5d648acd11467fd124584617",
+        "commit": "5df606bbd0ef54a8f150c3303c870b9381a661f0",
         "origine": "https://git.savannah.gnu.org/git/gnulib.git",
         "nota": "usata da autogen.sh per preparare la compilazione"
       }
     ],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "libxml2",
     "nome": "libxml2",
     "versione": "2.16.0",
-    "commit": "91586dc6742ab335682235120363f6e126eea5e2",
+    "commit": "c79c9612fcc77b06b0d16f35fd363d938bdbbf5e",
     "origine": "https://github.com/GNOME/libxml2.git",
     "licenza": "MIT AND ISC-Veillard",
     "testo": "libxml2.txt",
@@ -117,16 +117,16 @@
       "ffplay.exe"
     ],
     "nota": "lettura dei file di configurazione di Fontconfig",
-    "data_commit": "2026-09-17T05:57:33Z",
+    "data_commit": "2026-10-17T13:51:17+02:00",
     "script_ffmpeg_builds": "scripts.d/25-libxml2.sh",
     "parti": [],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "freetype",
     "nome": "FreeType",
-    "versione": "2.14.3",
-    "commit": "d333439633039de426f943f28a2926c7f97b5ae5",
+    "versione": "2.15.0",
+    "commit": "4ba7c3d82ab8b3cc80b869337d2c2b1913c5e415",
     "origine": "https://gitlab.freedesktop.org/freetype/freetype.git",
     "licenza": "FTL AND MIT AND Zlib AND MIT-Modern-Variant",
     "testo": "freetype.txt",
@@ -138,7 +138,7 @@
       "ffplay.exe"
     ],
     "nota": "lettura e disegno dei caratteri (libass); FTL scelta fra FTL e GPL-2.0-or-later",
-    "data_commit": "2026-09-22T10:00:00+02:00",
+    "data_commit": "2026-10-24T22:42:24-04:00",
     "script_ffmpeg_builds": "scripts.d/45-fonts/50-freetype.sh",
     "parti": [
       {
@@ -149,13 +149,13 @@
         "nota": "scaricato da autogen.sh; compilato solo con FT_DEBUG_LOGGING, quindi non è negli eseguibili"
       }
     ],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "fontconfig",
     "nome": "Fontconfig",
     "versione": "2.18.3",
-    "commit": "bd8f7b597de96761750d0365abb49b19d2f8d5c3",
+    "commit": "b25ffeabd15b76f86c0c6736f6df2f1b89858010",
     "origine": "https://gitlab.freedesktop.org/fontconfig/fontconfig.git",
     "licenza": "HPND-sell-variant AND MIT-Modern-Variant AND MIT AND Unicode-3.0 AND LicenseRef-Public-Domain",
     "testo": "fontconfig.txt",
@@ -167,16 +167,16 @@
       "ffplay.exe"
     ],
     "nota": "ricerca dei caratteri per libass (insieme a DirectWrite di Windows)",
-    "data_commit": "2026-09-18T02:42:18Z",
+    "data_commit": "2026-10-21T09:01:08Z",
     "script_ffmpeg_builds": "scripts.d/45-fonts/35-fontconfig.sh",
     "parti": [],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "harfbuzz",
     "nome": "HarfBuzz",
-    "versione": "14.5.0",
-    "commit": "b3bab62307017934dd7f532c52a696fefb12b3ad",
+    "versione": "15.0.0",
+    "commit": "75d8ac5d2313842550174eaab0cbaf653c8f2f77",
     "origine": "https://github.com/harfbuzz/harfbuzz.git",
     "licenza": "MIT-Modern-Variant AND MIT AND ISC AND Unicode-3.0",
     "testo": "harfbuzz.txt",
@@ -188,16 +188,16 @@
       "ffplay.exe"
     ],
     "nota": "composizione del testo (libass); compilata con FreeType e GDI/Uniscribe",
-    "data_commit": "2026-09-21T12:15:48-06:00",
+    "data_commit": "2026-10-22T13:04:52-06:00",
     "script_ffmpeg_builds": "scripts.d/45-fonts/45-harfbuzz.sh",
     "parti": [],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "libunibreak",
     "nome": "libunibreak",
     "versione": "8.0",
-    "commit": "28a2756b864c343f438cd22537d49d394d4666a5",
+    "commit": "f8172fe771ef620112247cadfb876aecaa4f769e",
     "origine": "https://github.com/adah1972/libunibreak.git",
     "licenza": "Zlib",
     "testo": "libunibreak.txt",
@@ -209,10 +209,10 @@
       "ffplay.exe"
     ],
     "nota": "a capo dei sottotitoli secondo le regole Unicode (libass)",
-    "data_commit": "2026-09-15T15:10:38+08:00",
+    "data_commit": "2026-10-07T11:59:37+08:00",
     "script_ffmpeg_builds": "scripts.d/45-libunibreak.sh",
     "parti": [],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "libass",
@@ -233,7 +233,7 @@
     "data_commit": "2026-09-17T00:00:00Z",
     "script_ffmpeg_builds": "scripts.d/50-libass.sh",
     "parti": [],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "zimg",
@@ -262,13 +262,13 @@
         "nota": "sottomodulo compilato dentro zimg"
       }
     ],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "dav1d",
     "nome": "dav1d",
     "versione": "1.5.4",
-    "commit": "9711965b60bb692ae24004659acf61f5c7d9ed61",
+    "commit": "b8b2d726b4b78a2fb174cb45baff441b5969672c",
     "origine": "https://code.videolan.org/videolan/dav1d.git",
     "licenza": "BSD-2-Clause AND ISC",
     "testo": "dav1d.txt",
@@ -280,10 +280,10 @@
       "ffplay.exe"
     ],
     "nota": "decoder AV1; doc/PATENTS (AOM Patent License 1.0) va riportata con i binari",
-    "data_commit": "2026-09-22T21:39:59Z",
+    "data_commit": "2026-10-24T12:00:13Z",
     "script_ffmpeg_builds": "scripts.d/50-dav1d.sh",
     "parti": [],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "libsamplerate",
@@ -302,13 +302,13 @@
     "data_commit": "2026-08-13T12:47:19+10:00",
     "script_ffmpeg_builds": "scripts.d/45-libsamplerate.sh",
     "parti": [],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "sdl2",
     "nome": "SDL 2",
     "versione": "2.33.0",
-    "commit": "b90ac95029d801c5abc59472ba8e2200dff31e1e",
+    "commit": "8acf7cfc0f88717e5c036f60f0314bfcafe39189",
     "origine": "https://github.com/libsdl-org/SDL.git",
     "licenza": "Zlib AND BSD-3-Clause AND SunPro AND MIT",
     "testo": "sdl2.txt",
@@ -318,16 +318,16 @@
       "ffplay.exe"
     ],
     "nota": "finestra, audio e tastiera di ffplay (solo ffplay.exe)",
-    "data_commit": "2026-09-02T12:43:32-04:00",
+    "data_commit": "2026-10-12T16:16:12-04:00",
     "script_ffmpeg_builds": "scripts.d/50-sdl.sh",
     "parti": [],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "mingw-w64-crt",
     "nome": "MinGW-w64 runtime (CRT)",
     "versione": "15.0.0 (alpha)",
-    "commit": "57b595039040eaa15bece85b7cc71d952281b269",
+    "commit": "7213d719fe344553aa24fef7cc7dedee4940d594",
     "origine": "https://git.code.sf.net/p/mingw-w64/mingw-w64.git",
     "licenza": "ZPL-2.1 AND ISC AND BSD-2-Clause AND MIT AND SunPro AND LicenseRef-Lucent-gdtoa AND LicenseRef-Cephes AND LicenseRef-Public-Domain AND LGPL-2.1-or-later",
     "testo": "mingw-w64-crt.txt",
@@ -339,16 +339,16 @@
       "ffplay.exe"
     ],
     "nota": "runtime C del compilatore (avvio, matematica, stampa, protezione dello stack)",
-    "data_commit": "2026-09-19T18:25:15+08:00",
+    "data_commit": "2026-10-25T18:38:45+01:00",
     "script_ffmpeg_builds": "scripts.d/10-mingw.sh",
     "parti": [],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "winpthreads",
     "nome": "winpthreads (MinGW-w64)",
     "versione": "15.0.0 (alpha)",
-    "commit": "57b595039040eaa15bece85b7cc71d952281b269",
+    "commit": "7213d719fe344553aa24fef7cc7dedee4940d594",
     "origine": "https://git.code.sf.net/p/mingw-w64/mingw-w64.git",
     "licenza": "MIT AND BSD-3-Clause",
     "testo": "winpthreads.txt",
@@ -360,10 +360,10 @@
       "ffplay.exe"
     ],
     "nota": "thread POSIX per Windows (usati da libstdc++)",
-    "data_commit": "2026-09-19T18:25:15+08:00",
+    "data_commit": "2026-10-25T18:38:45+01:00",
     "script_ffmpeg_builds": "scripts.d/10-mingw.sh",
     "parti": [],
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "gcc-runtime",
@@ -381,7 +381,7 @@
       "ffplay.exe"
     ],
     "nota": "tag releases/gcc-16.2.0; compilatore crosstool-NG con binutils 2.47; sorgente su https://gcc.gnu.org",
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   },
   {
     "id": "unicode",
@@ -399,6 +399,6 @@
       "ffplay.exe"
     ],
     "nota": "dati compilati dentro FriBidi, HarfBuzz, libunibreak, libxml2 e Fontconfig",
-    "release": "v8.1-1"
+    "release": "v8.1-3"
   }
 ]

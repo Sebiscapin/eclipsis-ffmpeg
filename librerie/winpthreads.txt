@@ -1,6 +1,6 @@
 winpthreads (MinGW-w64) 15.0.0 (alpha)
 Origine / Source: https://git.code.sf.net/p/mingw-w64/mingw-w64.git
-Commit: 57b595039040eaa15bece85b7cc71d952281b269
+Commit: 7213d719fe344553aa24fef7cc7dedee4940d594
 Licenza / License (SPDX): MIT AND BSD-3-Clause
 Negli eseguibili / In: ffmpeg.exe, ffprobe.exe, ffplay.exe
 

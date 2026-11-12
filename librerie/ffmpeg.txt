@@ -1,10 +1,10 @@
-FFmpeg (libavcodec, libavformat, libavfilter, libavutil, libswscale, libswresample, libavdevice) n8.1.3-19-gd62c023504-eclipsis
+FFmpeg (libavcodec, libavformat, libavfilter, libavutil, libswscale, libswresample, libavdevice) n8.1.3-36-g6cfaa81447-eclipsis
 Origine / Source: https://github.com/FFmpeg/FFmpeg.git
-Commit: 46d899d7a02bc63237472cc4897258d5ddf274ac
+Commit: f1acb0a2666c78d92688f4c3d2803a132f5590f6
 Licenza / License (SPDX): LGPL-3.0-or-later
 Negli eseguibili / In: ffmpeg.exe, ffprobe.exe, ffplay.exe
 
-Ramo release/8.1 con il decoder aac_mf di Eclipsis (vedi
+Ramo release/8.1 con i decoder aac_mf e h264_mf di Eclipsis (vedi
 MODIFICHE_ECLIPSIS.txt). Configurato con --enable-version3: LGPL
 versione 3 o successiva, che rimanda alla GPL versione 3. Il sorgente
 corrispondente è ffmpeg-sorgente.tar.gz della stessa release.
@@ -15,6 +15,7 @@ MODIFICHE_ECLIPSIS.txt
 Questo sorgente e' FFmpeg (release/8.1)
 modificato per Eclipsis il 12 ottobre 2026.
 This source is FFmpeg, modified for Eclipsis on 12 October 2026.
+Decoder H.264 (h264_mf) aggiunto l'11 novembre 2026. / H.264 decoder (h264_mf) added on 11 November 2026.
 
 Modifiche / Changes:
 - libavcodec/mfdec.c (file nuovo / new file): decoder "aac_mf", che decodifica l'AAC con il
@@ -25,6 +26,14 @@ Modifiche / Changes:
 - configure, libavcodec/Makefile, libavcodec/allcodecs.c: righe che registrano il decoder,
   ognuna preceduta da un commento "Eclipsis, 12 ottobre 2026". / Lines that register the
   decoder, each preceded by an "Eclipsis" comment.
+
+- libavcodec/mfvdec.c (file nuovo / new file, 11 novembre 2026): decoder "h264_mf", che
+  decodifica l'H.264 con il decoder di Windows (Media Foundation, CLSID_CMSH264DecoderMFT);
+  il decoder H.264 di FFmpeg e' spento. / H.264 decoding through the Windows H.264 decoder
+  MFT; the FFmpeg H.264 decoder is disabled.
+- configure, libavcodec/Makefile, libavcodec/allcodecs.c: righe che registrano h264_mf,
+  ognuna preceduta da un commento "Eclipsis, 11 novembre 2026". / Lines that register
+  h264_mf, each preceded by an "Eclipsis" comment.
 
 Licenza / License: GNU Lesser General Public License versione 3 o successiva / version 3
 or later (questa build e' configurata con --enable-version3): COPYING.LGPLv3, COPYING.GPLv3.

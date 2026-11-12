@@ -1,13 +1,13 @@
 AVVISI DEI FILE DI FFmpeg CON LICENZE DIVERSE DALLA LGPL
 Notices of the FFmpeg files under licenses other than the LGPL
 
-FFmpeg n8.1.3-19-gd62c023504-eclipsis (commit 46d899d7a02bc63237472cc4897258d5ddf274ac) in ffmpeg.exe, ffprobe.exe e ffplay.exe della release v8.1-1 di eclipsis-ffmpeg.
+FFmpeg n8.1.3-36-g6cfaa81447-eclipsis (commit f1acb0a2666c78d92688f4c3d2803a132f5590f6) in ffmpeg.exe, ffprobe.exe e ffplay.exe della release v8.1-3 di eclipsis-ffmpeg.
 
 FFmpeg nel suo insieme è distribuito con la LGPL versione 3 o successiva (ffmpeg.txt).
 Alcuni dei file compilati nei programmi hanno anche, o soltanto, un'altra licenza (BSD,
 MIT, ISC, IJG, Zlib, Boost, pubblico dominio...): qui sotto, per ognuno, i commenti con
 la licenza e il copyright, copiati dal sorgente senza modifiche. Sono solo i file
-davvero compilati con la nostra configurazione (elenco ricavato dagli eseguibili della release, dalle regole di configure e dai Makefile: testi_licenze/file_compilati_ffmpeg_v8.1-1.txt).
+davvero compilati con la nostra configurazione (dipendenze .d della compilazione: file_compilati_ffmpeg.txt).
 
 FFmpeg as a whole is distributed under the LGPL version 3 or later. Some files compiled
 into the programs also, or only, carry another license: below are their license and

@@ -1,6 +1,6 @@
 libunibreak 8.0
 Origine / Source: https://github.com/adah1972/libunibreak.git
-Commit: 28a2756b864c343f438cd22537d49d394d4666a5
+Commit: f8172fe771ef620112247cadfb876aecaa4f769e
 Licenza / License (SPDX): Zlib
 Negli eseguibili / In: ffmpeg.exe, ffprobe.exe, ffplay.exe
 

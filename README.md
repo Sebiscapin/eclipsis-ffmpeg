@@ -70,7 +70,8 @@ ogni componente, `AVVISI_FFMPEG.txt` (gli avvisi dei file di FFmpeg compilati ch
 un'altra licenza: BSD, MIT, ISC, IJG...) e `librerie.json` (nome, versione, commit, origine,
 licenza SPDX). Per la
 release v8.1-1, compilata prima, le stesse cose sono nell'allegato
-`ffmpeg-eclipsis-licenze.zip` e nella cartella [librerie/](librerie/) di questo repository.
+`ffmpeg-eclipsis-licenze.zip`. La cartella [librerie/](librerie/) di questo repository ha
+quelle della release che Eclipsis usa (dal 12 novembre 2026 la v8.1-3).
 
 ---
 

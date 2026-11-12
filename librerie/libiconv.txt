@@ -1,6 +1,6 @@
 GNU libiconv 1.19
 Origine / Source: https://git.savannah.gnu.org/git/libiconv.git
-Commit: 1df3087ba8110c7f3ed3eb5f8869b814dbbe00b0
+Commit: b5a1735e02bf43ee6e490fcf9395e8abc8d32432
 Licenza / License (SPDX): LGPL-2.1-or-later
 Negli eseguibili / In: ffmpeg.exe, ffprobe.exe, ffplay.exe
 
@@ -51,7 +51,7 @@ Righe di copyright dei file sorgente / Copyright lines from the source files:
   Copyright (C) 1999-2024 Free Software Foundation, Inc.
   Copyright (C) 1999-2026 Free Software Foundation, Inc.
   Copyright (C) 2000 Free Software Foundation, Inc.
-  Copyright (C) 2000-2006, 2008-2019 Free Software Foundation, Inc.
+  Copyright (C) 2000-2006, 2008-2026 Free Software Foundation, Inc.
   Copyright (C) 2000-2024 Free Software Foundation, Inc.
   Copyright (C) 2000-2026 Free Software Foundation, Inc.
   Copyright (C) 2001 Free Software Foundation, Inc.

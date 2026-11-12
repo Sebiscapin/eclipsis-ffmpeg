@@ -1,6 +1,6 @@
 dav1d 1.5.4
 Origine / Source: https://code.videolan.org/videolan/dav1d.git
-Commit: 9711965b60bb692ae24004659acf61f5c7d9ed61
+Commit: b8b2d726b4b78a2fb174cb45baff441b5969672c
 Licenza / License (SPDX): BSD-2-Clause AND ISC
 Negli eseguibili / In: ffmpeg.exe, ffprobe.exe, ffplay.exe
 
