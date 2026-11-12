@@ -132,8 +132,10 @@ jobs:
           # codificati dall'encoder H.264 di Windows della nostra build (codificare non
           # passa dal decoder); i derivati li fa l'FFmpeg ufficiale, che non dipende da h264_mf
           $e = '.\eclipsis\ffmpeg.exe'
-          # 1080p (altezza codificata 1088: il ritaglio), profilo High, B-frame se l'encoder li fa
-          & $e -v error -f lavfi -i "testsrc2=s=1920x1080:r=30:d=4" -c:v h264_mf -hw_encoding 0 -profile:v high -bf 2 -g 30 -b:v 6M -pix_fmt yuv420p prova_h264\hd.mp4
+          # 1080p (altezza codificata 1088: il ritaglio), profilo High, B-frame: h264_mf legge
+          # il profilo generico di libavcodec, che vuole il numero (100 = High): «high» non
+          # lo capisce, l'encoder non partiva e con hd.mp4 mancavano anche i tre derivati
+          & $e -v error -f lavfi -i "testsrc2=s=1920x1080:r=30:d=4" -c:v h264_mf -hw_encoding 0 -profile:v 100 -bf 2 -g 30 -b:v 6M -pix_fmt yuv420p prova_h264\hd.mp4
           # verticale 1080x1920 (larghezza codificata 1088: il ritaglio a destra), 60 fps, MOV
           & $e -v error -f lavfi -i "testsrc2=s=1080x1920:r=60:d=3" -c:v h264_mf -hw_encoding 0 -g 60 -b:v 8M -pix_fmt yuv420p prova_h264\verticale.mov
           # due dimensioni nello stesso flusso grezzo: il cambio di formato a meta'
@@ -152,7 +154,18 @@ jobs:
             "::error title=file di prova H.264::creati $n file su 6"
             exit 1
           }
-          & $env:UFFICIALE -v error -select_streams v:0 -show_entries stream=has_b_frames,profile -of compact prova_h264\hd.mp4
+          # le opzioni di ffprobe vanno a ffprobe (accanto all'ffmpeg ufficiale), non a ffmpeg
+          $probe = Join-Path (Split-Path $env:UFFICIALE) 'ffprobe.exe'
+          & $probe -v error -select_streams v:0 -show_entries stream=has_b_frames,profile -of compact prova_h264\hd.mp4
+          # senza B-frame o senza gamma piena il confronto non proverebbe il riordino e yuvj420p
+          $b = @(& $probe -v error -select_streams v:0 -show_entries frame=pict_type -of csv=p=0 prova_h264\hd.mp4 | Where-Object { $_ -like 'B*' }).Count
+          $gamma = & $probe -v error -select_streams v:0 -read_intervals "%+#1" -show_entries frame=pix_fmt,color_range -of csv=p=0 prova_h264\piena.mp4
+          "B-frame in hd.mp4: $b; primo fotogramma di piena.mp4: $gamma"
+          if ($b -eq 0) { "::warning title=file di prova H.264::hd.mp4 senza B-frame: il riordino non si prova" }
+          if ("$gamma" -notmatch 'pc') {
+            "::error title=file di prova H.264::piena.mp4 non e' a gamma piena ($gamma)"
+            exit 1
+          }
       - name: Confronto delle decodifiche H.264 (framemd5, ricerca, ffprobe)
         if: ${{ !cancelled() }}
         shell: pwsh
