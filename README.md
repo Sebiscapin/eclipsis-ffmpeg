@@ -57,7 +57,7 @@ tag `v...` (per esempio `v8.1-1`).
 
 ## Sorgente corrispondente
 
-Ogni release contiene, accanto agli eseguibili:
+Ogni release dalla v8.1-2 contiene, accanto agli eseguibili:
 
 - `ffmpeg-sorgente.tar.gz`: il sorgente completo di FFmpeg esattamente come è stato
   compilato (con il decoder aggiunto);
@@ -68,10 +68,9 @@ Ogni release contiene, accanto agli eseguibili:
 Dentro `ffmpeg-eclipsis-win64.zip`, la cartella `licenze/` ha la licenza e gli avvisi di
 ogni componente, `AVVISI_FFMPEG.txt` (gli avvisi dei file di FFmpeg compilati che hanno anche
 un'altra licenza: BSD, MIT, ISC, IJG...) e `librerie.json` (nome, versione, commit, origine,
-licenza SPDX). Per la
-release v8.1-1, compilata prima, le stesse cose sono nell'allegato
-`ffmpeg-eclipsis-licenze.zip`. La cartella [librerie/](librerie/) di questo repository ha
-quelle della release che Eclipsis usa (dal 12 novembre 2026 la v8.1-3).
+licenza SPDX). La release v8.1-1, compilata prima e mai distribuita con Eclipsis, ha solo
+gli eseguibili e `ffmpeg-sorgente.tar.gz`. La cartella [librerie/](librerie/) di questo
+repository ha le licenze della release che Eclipsis usa (dal 12 novembre 2026 la v8.1-3).
 
 ---
 
@@ -86,7 +85,7 @@ MODIFICHE_ECLIPSIS.txt describing the changes (October and November 2026). AAC a
 are decoded by the decoders that ship with Windows (Media Foundation) through the `aac_mf`
 and `h264_mf` decoders in `sorgenti/mfdec.c` and `sorgenti/mfvdec.c`; FFmpeg's own AAC and
 H.264 decoders and all unused encoders are disabled. Every
-release includes the complete corresponding source: `ffmpeg-sorgente.tar.gz` (FFmpeg as
+release from v8.1-2 includes the complete corresponding source: `ffmpeg-sorgente.tar.gz` (FFmpeg as
 built) and `librerie-sorgente.tar` (every statically linked library, FriBidi and libiconv
 included, at the exact commit, with the FFmpeg-Builds scripts that built them). The
 `licenze/` folder of the zip holds the license and notices of every component.
