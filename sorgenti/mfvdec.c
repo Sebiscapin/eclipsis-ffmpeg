@@ -1350,5 +1350,8 @@ const FFCodec ff_h264_mf_decoder = {
     .flush          = mfvdec_flush,
     FF_CODEC_RECEIVE_FRAME_CB(mfvdec_receive_frame),
     .bsfs           = "h264_mp4toannexb",
-    .caps_internal  = FF_CODEC_CAP_INIT_CLEANUP | FF_CODEC_CAP_SETS_FRAME_PROPS,
+    // AUTO_THREADS: without it libavcodec forces thread_count = 1 (no frame or
+    // slice threads here), and the MFT decoded on one thread in low latency
+    .caps_internal  = FF_CODEC_CAP_INIT_CLEANUP | FF_CODEC_CAP_SETS_FRAME_PROPS |
+                      FF_CODEC_CAP_AUTO_THREADS,
 };
