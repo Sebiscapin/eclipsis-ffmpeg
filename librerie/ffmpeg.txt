@@ -1,4 +1,4 @@
-FFmpeg (libavcodec, libavformat, libavfilter, libavutil, libswscale, libswresample, libavdevice) n8.1.3-36-g6cfaa81447-eclipsis
+FFmpeg (libavcodec, libavformat, libavfilter, libavutil, libswscale, libswresample, libavdevice) n8.1.3-36-g39b5ac45ff-eclipsis
 Origine / Source: https://github.com/FFmpeg/FFmpeg.git
 Commit: f1acb0a2666c78d92688f4c3d2803a132f5590f6
 Licenza / License (SPDX): LGPL-3.0-or-later

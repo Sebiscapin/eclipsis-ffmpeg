@@ -2,7 +2,7 @@
   {
     "id": "ffmpeg",
     "nome": "FFmpeg (libavcodec, libavformat, libavfilter, libavutil, libswscale, libswresample, libavdevice)",
-    "versione": "n8.1.3-36-g6cfaa81447-eclipsis",
+    "versione": "n8.1.3-36-g39b5ac45ff-eclipsis",
     "commit": "f1acb0a2666c78d92688f4c3d2803a132f5590f6",
     "origine": "https://github.com/FFmpeg/FFmpeg.git",
     "licenza": "LGPL-3.0-or-later",
@@ -28,7 +28,7 @@
       "WTFPL",
       "Zlib"
     ],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "zlib",
@@ -49,7 +49,7 @@
     "data_commit": "2026-10-25T10:38:46-07:00",
     "script_ffmpeg_builds": "scripts.d/20-zlib.sh",
     "parti": [],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "fribidi",
@@ -70,7 +70,7 @@
     "data_commit": "2026-10-15T21:31:49+03:00",
     "script_ffmpeg_builds": "scripts.d/25-fribidi.sh",
     "parti": [],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "libiconv",
@@ -99,7 +99,7 @@
         "nota": "usata da autogen.sh per preparare la compilazione"
       }
     ],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "libxml2",
@@ -120,7 +120,7 @@
     "data_commit": "2026-10-17T13:51:17+02:00",
     "script_ffmpeg_builds": "scripts.d/25-libxml2.sh",
     "parti": [],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "freetype",
@@ -149,7 +149,7 @@
         "nota": "scaricato da autogen.sh; compilato solo con FT_DEBUG_LOGGING, quindi non è negli eseguibili"
       }
     ],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "fontconfig",
@@ -170,7 +170,7 @@
     "data_commit": "2026-10-21T09:01:08Z",
     "script_ffmpeg_builds": "scripts.d/45-fonts/35-fontconfig.sh",
     "parti": [],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "harfbuzz",
@@ -191,7 +191,7 @@
     "data_commit": "2026-10-22T13:04:52-06:00",
     "script_ffmpeg_builds": "scripts.d/45-fonts/45-harfbuzz.sh",
     "parti": [],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "libunibreak",
@@ -212,7 +212,7 @@
     "data_commit": "2026-10-07T11:59:37+08:00",
     "script_ffmpeg_builds": "scripts.d/45-libunibreak.sh",
     "parti": [],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "libass",
@@ -233,7 +233,7 @@
     "data_commit": "2026-09-17T00:00:00Z",
     "script_ffmpeg_builds": "scripts.d/50-libass.sh",
     "parti": [],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "zimg",
@@ -262,7 +262,7 @@
         "nota": "sottomodulo compilato dentro zimg"
       }
     ],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "dav1d",
@@ -283,7 +283,7 @@
     "data_commit": "2026-10-24T12:00:13Z",
     "script_ffmpeg_builds": "scripts.d/50-dav1d.sh",
     "parti": [],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "libsamplerate",
@@ -302,7 +302,7 @@
     "data_commit": "2026-08-13T12:47:19+10:00",
     "script_ffmpeg_builds": "scripts.d/45-libsamplerate.sh",
     "parti": [],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "sdl2",
@@ -321,7 +321,7 @@
     "data_commit": "2026-10-12T16:16:12-04:00",
     "script_ffmpeg_builds": "scripts.d/50-sdl.sh",
     "parti": [],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "mingw-w64-crt",
@@ -342,7 +342,7 @@
     "data_commit": "2026-10-25T18:38:45+01:00",
     "script_ffmpeg_builds": "scripts.d/10-mingw.sh",
     "parti": [],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "winpthreads",
@@ -363,7 +363,7 @@
     "data_commit": "2026-10-25T18:38:45+01:00",
     "script_ffmpeg_builds": "scripts.d/10-mingw.sh",
     "parti": [],
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "gcc-runtime",
@@ -381,7 +381,7 @@
       "ffplay.exe"
     ],
     "nota": "tag releases/gcc-16.2.0; compilatore crosstool-NG con binutils 2.47; sorgente su https://gcc.gnu.org",
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   },
   {
     "id": "unicode",
@@ -399,6 +399,6 @@
       "ffplay.exe"
     ],
     "nota": "dati compilati dentro FriBidi, HarfBuzz, libunibreak, libxml2 e Fontconfig",
-    "release": "v8.1-3"
+    "release": "v8.1-4"
   }
 ]
