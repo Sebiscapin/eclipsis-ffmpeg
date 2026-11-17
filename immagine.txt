@@ -3,7 +3,7 @@
 # IMMAGINE: l'immagine Docker di FFmpeg-Builds con il compilatore e le librerie gia'
 # compilate, fissata per impronta (@sha256:...). Un'etichetta come "latest" cambia da sola
 # e con lei le librerie dentro gli eseguibili: compila.sh la rifiuta.
-IMMAGINE=ghcr.io/ffmpeg-builds/ffmpeg-builds/win64-lgpl-8.1@sha256:bf5a62bbe22565a374ec5c5558a86a5e4ca3cea61838431e6f55f77a5c90df41
+IMMAGINE=ghcr.io/ffmpeg-builds/ffmpeg-builds/win64-lgpl-8.1@sha256:d8bcd1f1dd62d9157bbd5f74bb3d7f6a937a4624afddc1fd79632e085c4d1ced
 #
 # FFMPEG_BUILDS_COMMIT: il commit di FFmpeg-Builds da cui e' costruita quell'immagine. I suoi
 # script (scripts.d) fissano repository e commit di ogni libreria: raccogli_librerie.py ne
