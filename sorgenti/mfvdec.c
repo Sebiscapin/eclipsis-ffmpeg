@@ -290,11 +290,20 @@ static void mfvdec_parse_vui(MFVDecBits *b, MFVDecSPS *s)
             s->primaries  = mfvdec_bits(b, 8);
             s->trc        = mfvdec_bits(b, 8);
             s->space      = mfvdec_bits(b, 8);
-            if (!av_color_primaries_name(s->primaries))
+            // Invalid values to "unspecified", reserved ones included, exactly as
+            // h2645_vui.c of FFmpeg 8.1 (17 November 2026: the Windows Camera app writes
+            // transfer_characteristics 0 and matrix_coeffs 255, and swscale refuses
+            // a picture tagged "reserved")
+            if (s->primaries == AVCOL_PRI_RESERVED0 ||
+                s->primaries == AVCOL_PRI_RESERVED ||
+                !av_color_primaries_name(s->primaries))
                 s->primaries = AVCOL_PRI_UNSPECIFIED;
-            if (!av_color_transfer_name(s->trc))
+            if (s->trc == AVCOL_TRC_RESERVED0 ||
+                s->trc == AVCOL_TRC_RESERVED ||
+                !av_color_transfer_name(s->trc))
                 s->trc = AVCOL_TRC_UNSPECIFIED;
-            if (!av_color_space_name(s->space))
+            if (s->space == AVCOL_SPC_RESERVED ||
+                !av_color_space_name(s->space))
                 s->space = AVCOL_SPC_UNSPECIFIED;
         }
     }

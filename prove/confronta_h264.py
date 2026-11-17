@@ -120,6 +120,17 @@ def main():
                 riga += f"; {differenza}"
             print(riga, flush=True)
             annota("error" if differenza else "notice", f"framemd5 {nome}", riga)
+        # (17/11/2026) i fotogrammi devono anche lasciarsi convertire, come fa il programma:
+        # coi colori «reserved» (app Fotocamera di Windows) swscale rifiutava ogni conversione
+        try:
+            esegui([eclipsis, "-hide_banner", "-nostats", "-v", "error", "-c:v", "h264_mf",
+                    "-i", percorso, "-map", "0:v:0", "-frames:v", "5",
+                    "-vf", "scale=320:-2,format=rgb24", "-f", "null", "-"])
+            print(f"ok       {nome} (conversione dei fotogrammi)", flush=True)
+        except (RuntimeError, OSError) as errore:
+            errori += 1
+            print(f"ERRORE   {nome} (conversione dei fotogrammi): {errore}", flush=True)
+            annota("error", f"conversione {nome}", str(errore))
         try:
             ca, cb = campi(ufficiale, percorso), campi(eclipsis, percorso)
         except (RuntimeError, OSError, ValueError) as errore:

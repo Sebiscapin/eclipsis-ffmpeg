@@ -145,13 +145,18 @@ jobs:
           Remove-Item prova_h264\*.tmp
           # gamma piena e BT.601 scritti nel VUI (yuvj420p col decoder di FFmpeg)
           & $env:UFFICIALE -v error -i prova_h264\hd.mp4 -c copy -bsf:v "h264_metadata=video_full_range_flag=1:colour_primaries=6:transfer_characteristics=6:matrix_coefficients=6" prova_h264\piena.mp4
+          # (17/11/2026) valori riservati nel VUI, come li scrive l'app Fotocamera di Windows
+          # (transfer 0, matrice 255): il decoder di FFmpeg li fa «non indicati»; se passano
+          # come «reserved» swscale rifiuta ogni conversione di formato. Anche i riservati 3.
+          & $env:UFFICIALE -v error -i prova_h264\hd.mp4 -c copy -bsf:v "h264_metadata=video_full_range_flag=1:colour_primaries=1:transfer_characteristics=0:matrix_coefficients=255" prova_h264\fotocamera.mp4
+          & $env:UFFICIALE -v error -i prova_h264\hd.mp4 -c copy -bsf:v "h264_metadata=colour_primaries=3:transfer_characteristics=3:matrix_coefficients=3" prova_h264\riservati3.mp4
           # Annex B nel file grezzo e in MPEG-TS (senza h264_mp4toannexb nel decoder)
           & $env:UFFICIALE -v error -i prova_h264\hd.mp4 -c copy -bsf:v h264_mp4toannexb -f h264 prova_h264\annexb.h264
           & $env:UFFICIALE -v error -i prova_h264\hd.mp4 -c copy -f mpegts prova_h264\flusso.ts
           Get-ChildItem prova_h264
           $n = (Get-ChildItem prova_h264 -File).Count
-          if ($n -ne 6) {
-            "::error title=file di prova H.264::creati $n file su 6"
+          if ($n -ne 8) {
+            "::error title=file di prova H.264::creati $n file su 8"
             exit 1
           }
           # le opzioni di ffprobe vanno a ffprobe (accanto all'ffmpeg ufficiale), non a ffmpeg
